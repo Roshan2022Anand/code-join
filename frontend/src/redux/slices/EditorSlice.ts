@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { languagesOpt } from "../../../../../code-join/frontend/src/utility/languages";
+import { languagesOpt } from "../../utility/languages";
 
 interface EditorState {
   editorWidth: number;
