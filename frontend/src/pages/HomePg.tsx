@@ -78,10 +78,10 @@ const HomePg = () => {
   }, [dispatch, sideBarOpt]);
 
   return (
-    <div className="flex flex-col h-screen justify-between gap-3 py-4">
+    <div className="min-h-screen h-screen flex flex-col">
       <Header />
 
-      <main ref={containerRef} className="grow flex gap-2 px-3">
+      <main ref={containerRef} className="h-[90%] w-[99%] mx-auto flex gap-2 px-3">
         <SideBar />
         <button
           className="my-2 resize-btn cursor-ew-resize w-[5px] after:w-full after:h-[50px]"
@@ -92,7 +92,7 @@ const HomePg = () => {
         <section
           className=" flex flex-col gap-2"
           style={{
-            width: `clamp(50%,${editorWidth}px,${windowWidth - 100}px)`,
+            width: `clamp(50%,${editorWidth}px,${windowWidth - 110}px)`,
           }}
         >
           <CodeEditor />

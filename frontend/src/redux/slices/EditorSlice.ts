@@ -1,21 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { languagesOpt } from "../../utility/languages";
 
-interface EditorState {
-  editorWidth: number;
-  editorHeight: number;
-  activeSection: string | null;
-  currentLang: string;
-  staterCode: string;
-  sideBarOpt: string | null;
-}
-
-const initialState: EditorState = {
+const initialState = {
   editorWidth: 2000,
   editorHeight: 900,
   activeSection: null,
-  currentLang: "cpp",
-  staterCode: languagesOpt["cpp"],
+  currentLang: null,
+  staterCode: null,
   sideBarOpt: null,
 };
 

@@ -2,13 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { FaLaptopCode, FaUserFriends } from "react-icons/fa";
 import { IoOptionsSharp } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
-import { ProgrammingOptions, RoomOptions } from "./SideBarOptions";
 import { RootState } from "../../redux/store";
 import {
   setActiveSection,
   setEditorWidth,
   setSideBarOpt,
 } from "../../redux/slices/EditorSlice";
+import RoomOpt from "../SideBardComponents/RoomOpt";
+import PrgOpt from "../SideBardComponents/PrgOpt";
 
 const SideBar = () => {
   const dispatch = useDispatch();
@@ -31,7 +32,7 @@ const SideBar = () => {
   return (
     <aside
       ref={sidebarRef}
-      className={`min:w-[90px] flex-1 flex flex-col h-full overflow-hidden rounded-md bg-secondary ${
+      className={`flex-1 flex flex-col h-full overflow-hidden rounded-md bg-secondary ${
         activeSection == "opt" && "border-4 border-accent-300"
       }`}
       onClick={() => dispatch(setActiveSection("opt"))}
@@ -41,7 +42,7 @@ const SideBar = () => {
         {sideW > 150 && <h3>Options</h3>}
       </header>
       <section className="flex-1 flex gap-2">
-        <aside className="w-[90px] flex flex-col p-3 gap-3 bg-soft">
+        <aside className="w-[95px] flex flex-col p-3 gap-3 bg-soft">
           <button onClick={() => dispatch(setSideBarOpt("prgopt"))}>
             <FaLaptopCode className="icon-md-soft" />
           </button>
@@ -51,8 +52,8 @@ const SideBar = () => {
         </aside>
         {sideBarOpt && (
           <article className="flex-1 flex flex-col p-3">
-            {sideBarOpt == "prgopt" && <ProgrammingOptions />}
-            {sideBarOpt == "roomopt" && <RoomOptions />}
+            {sideBarOpt == "prgopt" && <PrgOpt />}
+            {sideBarOpt == "roomopt" && <RoomOpt />}
           </article>
         )}
       </section>
