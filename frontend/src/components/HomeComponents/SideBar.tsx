@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { FaLaptopCode, FaUserFriends } from "react-icons/fa";
+import { FaFile, FaLaptopCode, FaUserFriends } from "react-icons/fa";
 import { IoOptionsSharp } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
@@ -10,6 +10,7 @@ import {
 } from "../../redux/slices/EditorSlice";
 import RoomOpt from "../SideBardComponents/RoomOpt";
 import PrgOpt from "../SideBardComponents/PrgOpt";
+import FilesOpt from "../SideBardComponents/FilesOpt";
 
 const SideBar = () => {
   const dispatch = useDispatch();
@@ -43,6 +44,9 @@ const SideBar = () => {
       </header>
       <section className="flex-1 flex gap-2">
         <aside className="w-[95px] flex flex-col p-3 gap-3 bg-soft">
+          <button onClick={() => dispatch(setSideBarOpt("fileopt"))}>
+            <FaFile className="icon-md-soft" />
+          </button>
           <button onClick={() => dispatch(setSideBarOpt("prgopt"))}>
             <FaLaptopCode className="icon-md-soft" />
           </button>
@@ -54,6 +58,7 @@ const SideBar = () => {
           <article className="flex-1 flex flex-col p-3">
             {sideBarOpt == "prgopt" && <PrgOpt />}
             {sideBarOpt == "roomopt" && <RoomOpt />}
+            {sideBarOpt == "fileopt" && <FilesOpt />}
           </article>
         )}
       </section>

@@ -18,12 +18,12 @@ export const CreateContainer = async (req: Request, res: Response) => {
         AutoRemove: true,
       },
       Tty: true,
+      WorkingDir: "/root",
+      Cmd: ["bash"],
     });
     container.start();
 
-    res
-      .status(200)
-      .json({ message: "Container Created", containerID: container.id });
+    res.status(200).json({ containerID: container.id });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Server Error" });
@@ -31,24 +31,29 @@ export const CreateContainer = async (req: Request, res: Response) => {
 };
 
 //to run a program in the container
-export const RunPrgContainer = async (req: Request, res: Response) => {
+export const RunContainer = async (req: Request, res: Response) => {
   try {
     const { containerID, code } = req.body;
     container = docker.getContainer(containerID);
-
-    //executing the code
-    const exec = await container.exec({
+    console.log(code);
+    const exce = await container.exec({
       Cmd: ["node", "-e", code],
       AttachStdout: true,
       AttachStderr: true,
     });
 
-    const stream = await exec.start({ hijack: true, stdin: true });
+    const stream = await exce.start({ hijack: true, stdin: true });
+
+    let output = "";
     stream.on("data", (data) => {
-      res
-        .status(200)
-        .json({ message: "Ran sucessfully", output: data.slice(8).toString() });
+      console.log(data);
+      output += data.slice(8).toString();
     });
+
+    stream.on("end", () => {
+      console.log(output);
+      res.status(200).json({ output });
+    })
   } catch (err) {
     res.status(500).json({ message: "Server Error" });
   }

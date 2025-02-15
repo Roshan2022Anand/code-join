@@ -1,13 +1,13 @@
 import express from "express";
 import {
   CreateContainer,
-  RunPrgContainer,
+  RunContainer,
   StopContainer,
-} from "../controllers/DockerControler";
+} from "../controllers/container.controller";
 const router = express.Router();
 
 router.post("/", CreateContainer);
 router.delete("/", StopContainer);
-router.post("/run", RunPrgContainer);
+router.post("/run", RunContainer);
 
 export default router;

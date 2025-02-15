@@ -5,18 +5,20 @@ import { FaCode, FaPlay } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { setActiveSection } from "../../redux/slices/EditorSlice";
-import axios from "axios";
-import { setContainerOutput } from "../../redux/slices/TerminalSlice";
+import { useRunContainerMutation } from "../../redux/slices/TerminalSlice";
 
 const CodeEditor = () => {
+  //global state from redux
   const dispatch = useDispatch();
-  const { editorHeight, activeSection, currentLang, staterCode } = useSelector(
+  const { editorHeight, activeSection } = useSelector(
     (state: RootState) => state.editor
   );
-  const { containerID } = useSelector((state: RootState) => state.terminalS);
-  const monaco = useMonaco();
+  const { containerID, currentLang, staterCode } = useSelector(
+    (state: RootState) => state.terminalS
+  );
 
   // Set custom theme for monaco editor
+  const monaco = useMonaco();
   useEffect(() => {
     if (monaco && typeof window !== "undefined") {
       monaco.editor.defineTheme("accentTheme", {
@@ -40,19 +42,11 @@ const CodeEditor = () => {
   };
 
   //to run the program
+  const [runContainer] = useRunContainerMutation();
   const handleRunPrg = async () => {
-    if (editorRef.current) {
+    if (editorRef.current && containerID) {
       const code = editorRef.current.getValue();
-      try {
-        const res = axios.post(`${import.meta.env.VITE_BACKEND_URL}/container/run`, {
-          containerID,
-          code,
-        });
-        const { output } = (await res).data;
-        dispatch(setContainerOutput(output));
-      } catch (err) {
-        console.log(err);
-      }
+      runContainer({ containerID, code });
     }
   };
 

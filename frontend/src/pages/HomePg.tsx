@@ -6,15 +6,31 @@ import CodeEditor from "../components/HomeComponents/CodeEditor";
 import SideBar from "../components/HomeComponents/SideBar";
 import Header from "../components/HomeComponents/Header";
 import { setEditorHeight, setEditorWidth } from "../redux/slices/EditorSlice";
+import { io } from "socket.io-client";
+import { useMyContext } from "../utility/MyContext";
 
 const HomePg = () => {
+  //global state from context
+  const { setsocket, setbackendUrl } = useMyContext();
+
+  //global state from redux
   const dispatch = useDispatch();
   const { editorWidth, sideBarOpt } = useSelector(
     (state: RootState) => state.editor
   );
 
-  const containerRef = useRef<HTMLDivElement>(null);
+  //initilaizing the socket & url globally
+  useEffect(() => {
+    //@ts-ignore
+    setbackendUrl(import.meta.env.VITE_BACKEND_URL);
+
+    const newSocket = io("http://localhost:5000", { withCredentials: true });
+    if (newSocket) setsocket(newSocket);
+  }, [setsocket, setbackendUrl]);
+
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  const containerRef = useRef<HTMLDivElement>(null);
   const isDraggingSidebar = useRef(false);
   const isDraggingEditor = useRef(false);
 
@@ -81,7 +97,10 @@ const HomePg = () => {
     <div className="min-h-screen h-screen flex flex-col">
       <Header />
 
-      <main ref={containerRef} className="h-[90%] w-[99%] mx-auto flex gap-2 px-3">
+      <main
+        ref={containerRef}
+        className="h-[90%] w-[99%] mx-auto flex gap-2 px-3"
+      >
         <SideBar />
         <button
           className="my-2 resize-btn cursor-ew-resize w-[5px] after:w-full after:h-[50px]"

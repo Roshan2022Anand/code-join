@@ -1,11 +1,12 @@
-import { LangInfoType, langKey } from "./Types";
+
+import { FaNodeJs, FaPython } from "react-icons/fa";
+import { LangIcon, LangInfoType, langKey } from "./Types";
+// import { FaC, FaGolang } from "react-icons/fa6";
+// import { SiTypescript } from "react-icons/si";
+// import { TbBrandCpp } from "react-icons/tb";
 
 export const languagesOpt: Record<langKey, LangInfoType> = {
   javascript: {
-    env: "node",
-    code: "// Have fun coding!! 😃\nconsole.log('roshan is cool');",
-  },
-  typescript: {
     env: "node",
     code: "// Have fun coding!! 😃\nconsole.log('roshan is cool');",
   },
@@ -30,3 +31,34 @@ export const languagesOpt: Record<langKey, LangInfoType> = {
     code: '// Have fun coding!! 😃\n#include <iostream>\n\nint main() {\n    std::cout << "roshan is cool" << std::endl;\n    return 0;\n}',
   },
 };
+
+export const langIcons: LangIcon[] = [
+  {
+    name: "javascript",
+    icon: FaNodeJs,
+  },
+  // {
+  //   name: "typescript",
+  //   icon: SiTypescript,
+  // },
+  {
+    name: "python",
+    icon: FaPython,
+  },
+  // {
+  //   name: "java",
+  //   icon: FaJava,
+  // },
+  // {
+  //   name: "go",
+  //   icon: FaGolang,
+  // },
+  // {
+  //   name: "c",
+  //   icon: FaC,
+  // },
+  // {
+  //   name: "cpp",
+  //   icon: TbBrandCpp,
+  // },
+];
