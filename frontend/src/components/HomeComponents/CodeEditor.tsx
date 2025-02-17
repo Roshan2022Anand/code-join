@@ -13,7 +13,7 @@ const CodeEditor = () => {
   const { editorHeight, activeSection } = useSelector(
     (state: RootState) => state.editor
   );
-  const { containerID, currentLang, staterCode } = useSelector(
+  const { containerID, currentLang, currentCode } = useSelector(
     (state: RootState) => state.terminalS
   );
 
@@ -68,12 +68,12 @@ const CodeEditor = () => {
             <FaPlay className="icon-md" />
           </button>
         </header>
-        {currentLang && staterCode ? (
+        {currentLang && currentCode ? (
           <Editor
             height="1000px"
             language={currentLang}
             theme="accentTheme"
-            value={staterCode}
+            value={currentCode}
             onMount={handleEditorMount}
             options={{
               fontSize: 20,

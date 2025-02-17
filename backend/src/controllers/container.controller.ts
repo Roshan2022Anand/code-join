@@ -1,17 +1,19 @@
 import { Request, Response } from "express";
 import Docker from "dockerode";
+import { languages } from "../helpers/PrgLang";
+import { langKey } from "../helpers/Types";
 const docker = new Docker();
 
 let container: Docker.Container;
 // to create a container
 export const CreateContainer = async (req: Request, res: Response) => {
   try {
-    const { env } = req.body;
-    if (container) container.kill();
+    const { lang } = req.body;
+    const language = languages[lang as langKey];
 
     //creating a container
     container = await docker.createContainer({
-      Image: env,
+      Image: language.env,
       AttachStdin: true,
       AttachStdout: true,
       HostConfig: {
@@ -19,11 +21,29 @@ export const CreateContainer = async (req: Request, res: Response) => {
       },
       Tty: true,
       WorkingDir: "/root",
-      Cmd: ["bash"],
+      Cmd: [
+        "bash",
+        "-c",
+        `echo '${language.code}' > main.${language.ext} && ls -r && cat main.${language.ext} && exec bash`,
+      ],
     });
-    container.start();
 
-    res.status(200).json({ containerID: container.id });
+    //attaching the container to the stream to get the output
+    const stream = await container.attach({
+      stream: true,
+      stdin: true,
+      stdout: true,
+      stderr: true,
+    });
+
+    let output: string[] = [];
+    stream.on("data", (data) => {
+      output.push(data.toString());
+    });
+
+    await container.start();
+
+    res.status(200).json({ containerID: container.id, output });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Server Error" });
@@ -53,7 +73,7 @@ export const RunContainer = async (req: Request, res: Response) => {
     stream.on("end", () => {
       console.log(output);
       res.status(200).json({ output });
-    })
+    });
   } catch (err) {
     res.status(500).json({ message: "Server Error" });
   }

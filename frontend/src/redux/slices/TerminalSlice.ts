@@ -7,6 +7,7 @@ import {
   RunContRes,
 } from "../../utility/Types";
 
+//API slice for container
 export const containerApi = createApi({
   reducerPath: "containerApi",
   baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:5000/container" }),
@@ -28,18 +29,39 @@ export const containerApi = createApi({
   }),
 });
 
+// .:
+// one  three
+
+// ./one:
+// abc  two
+
+// ./one/two:
+// xyz
+
+// ./three:
+//convert this to json
+// const a = {
+//   one: {
+//     abc: "file",
+//     two: {
+//       xyz: "file",
+//     },
+//   },
+//   three: "file",
+// };
+
 interface TerminalStateType {
   containerID: string | null;
   containerOutput: string;
   currentLang: string | null;
-  staterCode: string | null;
+  currentCode: string | null;
 }
 
 const initialState: TerminalStateType = {
   containerID: null,
   containerOutput: "",
   currentLang: null,
-  staterCode: null,
+  currentCode: null,
 };
 
 const TerminalSlice = createSlice({
@@ -53,12 +75,21 @@ const TerminalSlice = createSlice({
       state.containerOutput = action.payload;
     },
     setCurrentLang: (state, action) => {
-      const { name, code } = action.payload;
-      state.currentLang = name;
-      state.staterCode = code;
+      state.currentLang = action.payload;
     },
   },
   extraReducers(builder) {
+    //handle fulfilled for create container
+    builder.addMatcher(
+      containerApi.endpoints.createContainer.matchFulfilled,
+      (state, action) => {
+        const { containerID, output } = action.payload;
+        state.containerID = containerID;
+        state.currentCode = output[1];
+      }
+    );
+
+    //handle fulfilled for run container
     builder.addMatcher(
       containerApi.endpoints.runContainer.matchFulfilled,
       (state, action) => {
@@ -70,6 +101,8 @@ const TerminalSlice = createSlice({
 
 export const { useCreateContainerMutation, useRunContainerMutation } =
   containerApi;
+
 export const { setContainerID, setContainerOutput, setCurrentLang } =
   TerminalSlice.actions;
+
 export default TerminalSlice.reducer;
