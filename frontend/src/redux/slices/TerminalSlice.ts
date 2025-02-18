@@ -28,30 +28,15 @@ export const containerApi = createApi({
         body,
       }),
     }),
+    deleteContainer: builder.mutation<void, { containerID: string }>({
+      query: (body) => ({
+        url: "/",
+        method: "DELETE",
+        body,
+      }),
+    }),
   }),
 });
-
-// .:
-// one  three
-
-// ./one:
-// abc  two
-
-// ./one/two:
-// xyz
-
-// ./three:
-//convert this to json
-// const a = {
-//   one: {
-//     abc: "file",
-//     two: {
-//       xyz: "file",
-//     },
-//   },
-//   three: "file",
-// };
-
 interface TerminalStateType {
   containerID: string | null;
   containerOutput: string;
@@ -107,7 +92,7 @@ const TerminalSlice = createSlice({
   },
 });
 
-export const { useCreateContainerMutation, useRunContainerMutation } =
+export const { useCreateContainerMutation, useRunContainerMutation ,useDeleteContainerMutation} =
   containerApi;
 
 export const { setContainerID, setContainerOutput, setCurrentLang } =

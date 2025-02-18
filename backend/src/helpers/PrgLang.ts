@@ -3,7 +3,7 @@ import { LangInfoType, langKey } from "./Types";
 export const languages: Record<langKey, LangInfoType> = {
   NodeJS: {
     env: "node",
-    code: "// Have fun coding!! 😃\nconsole.log('roshan is cool');",
+    code: `// Have fun coding!! 😃\nconsole.log("roshan is cool");`,
     ext: "js",
   },
   python: {

@@ -17,7 +17,6 @@ const SideBar = () => {
     (state: RootState) => state.editor
   );
 
-  // const [sideBarOpt, setsideBarOpt] = useState<React.JSX.Element | null>(null);
   const [sideW, setsideW] = useState(0);
   const sidebarRef = useRef<HTMLDivElement>(null);
 
@@ -28,6 +27,11 @@ const SideBar = () => {
   useEffect(() => {
     dispatch(setEditorWidth(window.innerWidth - (sideBarOpt ? 400 : 100)));
   }, [sideBarOpt, dispatch]);
+
+  const handleOption = (opt: string | null) => {
+    if (opt == sideBarOpt) opt = null;
+    dispatch(setSideBarOpt(opt));
+  };
 
   return (
     <aside
@@ -43,15 +47,15 @@ const SideBar = () => {
       </header>
       <section className="flex-1 flex gap-2">
         <aside className="w-[95px] flex flex-col p-3 gap-3 bg-soft">
-          <button onClick={() => dispatch(setSideBarOpt("fileopt"))}>
+          <button onClick={() => handleOption("fileopt")}>
             <FaFile className="icon-md-soft" />
           </button>
-          <button onClick={() => dispatch(setSideBarOpt("roomopt"))}>
+          <button onClick={() => handleOption("roomopt")}>
             <FaUserFriends className="icon-md-soft" />
           </button>
         </aside>
         {sideBarOpt && (
-          <article className="flex-1 flex flex-col p-3">
+          <article className="flex-1 flex flex-col ">
             {sideBarOpt == "roomopt" && <RoomOpt />}
             {sideBarOpt == "fileopt" && <FilesOpt />}
           </article>

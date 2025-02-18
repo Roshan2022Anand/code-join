@@ -18,7 +18,7 @@ const HomePg = () => {
   const { editorWidth, sideBarOpt } = useSelector(
     (state: RootState) => state.editor
   );
-
+  
   //initilaizing the socket & url globally
   useEffect(() => {
     const newSocket = io(import.meta.env.VITE_BACKEND_URL, {

@@ -10,3 +10,7 @@ export type LangIcon = {
   name: string;
   icon: IconType;
 };
+
+export type FolderStructureType = {
+  [key: string]: "file" | FolderStructureType;
+};
