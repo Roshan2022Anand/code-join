@@ -21,7 +21,6 @@ const editorSlice = createSlice({
     setActiveSection: (state, action) => {
       state.activeSection = action.payload;
     },
- 
     setSideBarOpt: (state, action) => {
       state.sideBarOpt = action.payload;
     },

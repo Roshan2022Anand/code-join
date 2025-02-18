@@ -10,7 +10,9 @@ import {
 //API slice for container
 export const containerApi = createApi({
   reducerPath: "containerApi",
-  baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:5000/container" }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: `${import.meta.env.VITE_BACKEND_URL}/container`,
+  }),
   endpoints: (builder) => ({
     createContainer: builder.mutation<CreateContRes, CreateContArg>({
       query: (body) => ({
@@ -55,6 +57,8 @@ interface TerminalStateType {
   containerOutput: string;
   currentLang: string | null;
   currentCode: string | null;
+  currentLoc: string | null;
+  folderStructure: string | null;
 }
 
 const initialState: TerminalStateType = {
@@ -62,6 +66,8 @@ const initialState: TerminalStateType = {
   containerOutput: "",
   currentLang: null,
   currentCode: null,
+  currentLoc: null,
+  folderStructure: null,
 };
 
 const TerminalSlice = createSlice({
@@ -85,7 +91,9 @@ const TerminalSlice = createSlice({
       (state, action) => {
         const { containerID, output } = action.payload;
         state.containerID = containerID;
+        state.folderStructure = output[0];
         state.currentCode = output[1];
+        state.currentLoc = output[2];
       }
     );
 

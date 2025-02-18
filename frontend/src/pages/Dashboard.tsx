@@ -7,8 +7,10 @@ import {
 } from "../redux/slices/TerminalSlice";
 import { RiLoaderFill } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 
 const Dashboard = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [create, { isLoading, isSuccess }] = useCreateContainerMutation();
 
@@ -16,9 +18,9 @@ const Dashboard = () => {
     if (isSuccess) navigate("/home");
   }, [isSuccess, navigate]);
 
-  const handleSetup = (lang: string) => {
-    setCurrentLang(lang == "NodeJS" ? "javascript" : lang);
-    create({ lang });
+  const handleSetup = async (lang: string) => {
+    dispatch(setCurrentLang(lang == "NodeJS" ? "javascript" : lang));
+    await create({ lang });
   };
 
   return (

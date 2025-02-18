@@ -11,7 +11,7 @@ import { useMyContext } from "../utility/MyContext";
 
 const HomePg = () => {
   //global state from context
-  const { setsocket, setbackendUrl } = useMyContext();
+  const { setsocket } = useMyContext();
 
   //global state from redux
   const dispatch = useDispatch();
@@ -21,12 +21,11 @@ const HomePg = () => {
 
   //initilaizing the socket & url globally
   useEffect(() => {
-    //@ts-ignore
-    setbackendUrl(import.meta.env.VITE_BACKEND_URL);
-
-    const newSocket = io("http://localhost:5000", { withCredentials: true });
+    const newSocket = io(import.meta.env.VITE_BACKEND_URL, {
+      withCredentials: true,
+    });
     if (newSocket) setsocket(newSocket);
-  }, [setsocket, setbackendUrl]);
+  }, [setsocket]);
 
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 

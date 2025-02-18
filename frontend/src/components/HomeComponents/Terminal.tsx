@@ -4,39 +4,74 @@ import { RootState } from "../../redux/store";
 import { setActiveSection } from "../../redux/slices/EditorSlice";
 import { Terminal as XTerminal } from "@xterm/xterm";
 import { useEffect, useRef } from "react";
+import { FitAddon } from "@xterm/addon-fit";
 //@ts-ignore
 import "@xterm/xterm/css/xterm.css";
 
 const Terminal = () => {
   const dispatch = useDispatch();
-  const { activeSection } = useSelector((state: RootState) => state.editor);
-  const { currentLang ,containerOutput} = useSelector((state: RootState) => state.terminalS);
+  const { activeSection, editorHeight, editorWidth } = useSelector(
+    (state: RootState) => state.editor
+  );
+  const {  currentLoc } = useSelector(
+    (state: RootState) => state.terminalS
+  );
 
   // Initialize terminal
   const terminalRef = useRef<HTMLDivElement>(null);
+  const fitAddon = useRef<FitAddon | null>(null);
   useEffect(() => {
     if (!terminalRef.current) return;
-     const terminal = new XTerminal({
+    fitAddon.current = new FitAddon();
+    const terminal = new XTerminal({
       cursorBlink: true,
-      // rows: 20,
-      // cols: 50,
     });
-
+    terminal.loadAddon(fitAddon.current);
     terminal.open(terminalRef.current);
-    terminal.onData((data) => {
-      console.log(data);
-      terminal.write(data);
-    });
+    fitAddon.current.fit();
 
-    if (containerOutput) {
-      terminal.write(containerOutput);
+    let commandBuffer = "";
+    const newLine = () => {
+      commandBuffer = currentLoc + " > " || "";
+    };
+
+    if (currentLoc) {
+      newLine();
+      terminal.write(commandBuffer);
     }
+
+    // Handle key press on terminal
+    terminal.onKey(({ key, domEvent }) => {
+      const printable =
+        !domEvent.altKey && !domEvent.ctrlKey && !domEvent.metaKey;
+      const keyCode = domEvent.keyCode;
+
+      if (keyCode === 13) {
+        //when pressed enter
+        newLine();
+        terminal.write("\r\n" + commandBuffer);
+      } else if (keyCode == 8) {
+        //when pressed backspace
+        if (commandBuffer == currentLoc + " > ") return;
+        commandBuffer = commandBuffer.slice(0, -1);
+        terminal.write("\b \b");
+      } else if (printable) {
+        //when pressed any other key
+        commandBuffer += key;
+        terminal.write(key);
+      }
+    });
 
     return () => {
       terminal.dispose();
     };
-  }, [containerOutput]);
+  }, [currentLoc]);
 
+  //fit terminal to the container when resize
+  useEffect(() => {
+    if (!fitAddon.current) return;
+    fitAddon.current.fit();
+  }, [editorHeight, editorWidth]);
 
   return (
     <article
@@ -49,8 +84,8 @@ const Terminal = () => {
         <IoTerminal className="icon-md" />
         <h3>Terminal</h3>
       </header>
-      {currentLang ? (
-        <div ref={terminalRef} className="flex-1 bg-secondary"></div>
+      {currentLoc ? (
+        <div ref={terminalRef} className="flex-1"></div>
       ) : (
         <h3 className="flex-1 content-center text-center">
           Plz slect an env..
