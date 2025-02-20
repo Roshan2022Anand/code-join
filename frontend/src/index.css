@@ -113,6 +113,24 @@ p {
   height: 100%;
   position: absolute;
   align-content: center;
-  /* background-color: rgba(255, 255, 255, 0.12); */
   backdrop-filter: blur(2px);
+}
+
+.file-txt {
+  font-size: clamp(0.75rem, 1.5vw, 1rem);
+  font-weight: 400;
+  position: relative;
+  padding: 0 5px;
+  margin: 2px 0;
+
+  &:hover {
+    &::after {
+      content: " ";
+      width: 150%;
+      position: absolute;
+      top: 0;
+      left: -40%;
+      background-color: rgba(255, 255, 255, 0.125);
+    }
+  }
 }

@@ -33,6 +33,5 @@ export const convertToFolder = (folder: string): FolderStructureType => {
     }
   };
   setFolder(0, folderStruct);
-
   return folderStruct;
 };

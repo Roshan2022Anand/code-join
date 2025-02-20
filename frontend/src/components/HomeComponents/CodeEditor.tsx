@@ -1,7 +1,7 @@
 import { Editor, OnMount, useMonaco } from "@monaco-editor/react";
 import type * as Monaco from "monaco-editor";
 import { useEffect, useRef } from "react";
-import { FaCode, FaPlay } from "react-icons/fa";
+import { FaCode, FaLaptopCode, FaPlay } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { setActiveSection } from "../../redux/slices/EditorSlice";
@@ -53,7 +53,7 @@ const CodeEditor = () => {
   return (
     <>
       <article
-        className={`overflow-hidden rounded-md bg-secondary h-[90%] ${
+        className={`overflow-hidden rounded-md bg-secondary h-[90%] flex flex-col ${
           activeSection == "code" && "border-4 border-accent-300"
         }`}
         onClick={() => dispatch(setActiveSection("code"))}
@@ -81,9 +81,9 @@ const CodeEditor = () => {
             }}
           />
         ) : (
-          <h1 className="h-1/2 content-center text-center">
-            Select a language..
-          </h1>
+          <section className="flex-1 flex items-center justify-center">
+            <FaLaptopCode className="icon-lg" />
+          </section>
         )}
       </article>
     </>

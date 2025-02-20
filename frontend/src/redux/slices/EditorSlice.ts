@@ -4,7 +4,7 @@ const initialState = {
   editorWidth: 2000,
   editorHeight: 900,
   activeSection: null,
-  sideBarOpt: null,
+  sideBarOpt: "fileopt",
 };
 
 const editorSlice = createSlice({

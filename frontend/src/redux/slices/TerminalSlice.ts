@@ -14,6 +14,16 @@ export const containerApi = createApi({
     baseUrl: `${import.meta.env.VITE_BACKEND_URL}/container`,
   }),
   endpoints: (builder) => ({
+    testContainer: builder.mutation<{ output: string[] }, void>({
+      query: () => ({
+        url: "/test",
+        method: "POST",
+        body: {
+          containerID:
+            "a952629760b1549d8094059761f9b1443edfb559b67d2387b905b6ae7d727e69",
+        },
+      }),
+    }),
     createContainer: builder.mutation<CreateContRes, CreateContArg>({
       query: (body) => ({
         url: "/",
@@ -39,19 +49,19 @@ export const containerApi = createApi({
 });
 interface TerminalStateType {
   containerID: string | null;
-  containerOutput: string;
   currentLang: string | null;
   currentCode: string | null;
-  currentLoc: string | null;
+  currentLoc: string;
+  terminalOutput: string;
   folderStructure: string | null;
 }
 
 const initialState: TerminalStateType = {
   containerID: null,
-  containerOutput: "",
-  currentLang: null,
+  currentLang: "javascript",
   currentCode: null,
-  currentLoc: null,
+  currentLoc: "Loading...",
+  terminalOutput: "",
   folderStructure: null,
 };
 
@@ -62,14 +72,21 @@ const TerminalSlice = createSlice({
     setContainerID: (state, action) => {
       state.containerID = action.payload;
     },
-    setContainerOutput: (state, action) => {
-      state.containerOutput = action.payload;
-    },
     setCurrentLang: (state, action) => {
       state.currentLang = action.payload;
     },
   },
   extraReducers(builder) {
+    builder.addMatcher(
+      containerApi.endpoints.testContainer.matchFulfilled,
+      (state, action) => {
+        const { output } = action.payload;
+        state.currentLoc = output[0].split("\n")[0];
+        state.folderStructure = output[1];
+        state.currentCode = output[2];
+      }
+    );
+
     //handle fulfilled for create container
     builder.addMatcher(
       containerApi.endpoints.createContainer.matchFulfilled,
@@ -86,16 +103,19 @@ const TerminalSlice = createSlice({
     builder.addMatcher(
       containerApi.endpoints.runContainer.matchFulfilled,
       (state, action) => {
-        state.containerOutput = action.payload.output;
+        state.terminalOutput = action.payload.output;
       }
     );
   },
 });
 
-export const { useCreateContainerMutation, useRunContainerMutation ,useDeleteContainerMutation} =
-  containerApi;
+export const {
+  useTestContainerMutation,
+  useCreateContainerMutation,
+  useRunContainerMutation,
+  useDeleteContainerMutation,
+} = containerApi;
 
-export const { setContainerID, setContainerOutput, setCurrentLang } =
-  TerminalSlice.actions;
+export const { setContainerID, setCurrentLang } = TerminalSlice.actions;
 
 export default TerminalSlice.reducer;

@@ -45,7 +45,7 @@ const SideBar = () => {
         <IoOptionsSharp className="icon-md" />
         {sideW > 150 && <h3>Options</h3>}
       </header>
-      <section className="flex-1 flex gap-2">
+      <section className="flex-1 flex">
         <aside className="w-[95px] flex flex-col p-3 gap-3 bg-soft">
           <button onClick={() => handleOption("fileopt")}>
             <FaFile className="icon-md-soft" />
@@ -55,7 +55,7 @@ const SideBar = () => {
           </button>
         </aside>
         {sideBarOpt && (
-          <article className="flex-1 flex flex-col ">
+          <article className="flex-1 flex flex-col overflow-x-hidden">
             {sideBarOpt == "roomopt" && <RoomOpt />}
             {sideBarOpt == "fileopt" && <FilesOpt />}
           </article>

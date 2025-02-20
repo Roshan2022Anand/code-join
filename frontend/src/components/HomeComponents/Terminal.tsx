@@ -13,9 +13,7 @@ const Terminal = () => {
   const { activeSection, editorHeight, editorWidth } = useSelector(
     (state: RootState) => state.editor
   );
-  const {  currentLoc } = useSelector(
-    (state: RootState) => state.terminalS
-  );
+  const { currentLoc } = useSelector((state: RootState) => state.terminalS);
 
   // Initialize terminal
   const terminalRef = useRef<HTMLDivElement>(null);
@@ -34,9 +32,9 @@ const Terminal = () => {
     const newLine = () => {
       commandBuffer = currentLoc + " > " || "";
     };
-
     if (currentLoc) {
       newLine();
+      console.log(commandBuffer);
       terminal.write(commandBuffer);
     }
 
@@ -84,13 +82,7 @@ const Terminal = () => {
         <IoTerminal className="icon-md" />
         <h3>Terminal</h3>
       </header>
-      {currentLoc ? (
-        <div ref={terminalRef} className="flex-1"></div>
-      ) : (
-        <h3 className="flex-1 content-center text-center">
-          Plz slect an env..
-        </h3>
-      )}
+      <div ref={terminalRef} className="flex-1"></div>
     </article>
   );
 };
