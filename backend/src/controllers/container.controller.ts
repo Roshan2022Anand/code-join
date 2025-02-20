@@ -35,10 +35,10 @@ export const CreateContainer = async (req: Request, res: Response) => {
       stderr: true,
     });
 
-    let output: string[] = [];
+    let output: string[] = [`main.${language.ext}`];
     stream.on("data", (data) => {
       output.push(data.toString());
-      if (output.length === 3)
+      if (output.length === 4)
         res.status(200).json({ containerID: container.id, output });
     });
 
@@ -50,7 +50,6 @@ export const CreateContainer = async (req: Request, res: Response) => {
 };
 
 export const TestContainer = async (req: Request, res: Response) => {
-  console.log("Test Container");
   try {
     const { containerID } = req.body;
     const container = docker.getContainer(containerID);
@@ -63,10 +62,10 @@ export const TestContainer = async (req: Request, res: Response) => {
 
     const stream = await exec.start({ hijack: true, stdin: true });
 
-    let output: string[] = [];
+    let output: string[] = ["main.js"];
     stream.on("data", (data) => {
       output.push(data.slice(8).toString());
-      if (output.length === 3) {
+      if (output.length === 4) {
         res.status(200).json({ output });
       }
     });
@@ -76,9 +75,8 @@ export const TestContainer = async (req: Request, res: Response) => {
   }
 };
 
-//to run a program in the container
-export const RunContainer = async (req: Request, res: Response) => {
-  console.log("Run Container");
+//to run bash CMD in the container
+export const RunTerminalCmd = async (req: Request, res: Response) => {
   try {
     const { containerID, cmd } = req.body;
     let container = docker.getContainer(containerID);
@@ -98,7 +96,6 @@ export const RunContainer = async (req: Request, res: Response) => {
       .on("end", () => {
         res.status(200).json({ output });
       });
-
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Server Error" });

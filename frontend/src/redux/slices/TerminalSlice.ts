@@ -7,6 +7,8 @@ import {
   RunContRes,
 } from "../../utility/Types";
 
+const id ="3f6bae41878cf2893e60119bc21269aaa4a668c9fb6a88fdc6c196df6d4d119c"
+
 //API slice for container
 export const containerApi = createApi({
   reducerPath: "containerApi",
@@ -19,8 +21,7 @@ export const containerApi = createApi({
         url: "/test",
         method: "POST",
         body: {
-          containerID:
-            "a24e4ab3254a0d65379d4bc31f12a77e77ec4ba917739ce38fadc0ad2eb2e66d",
+          containerID:id,
         },
       }),
     }),
@@ -54,15 +55,17 @@ interface TerminalStateType {
   currentLoc: string|null;
   terminalOutput: string;
   folderStructure: string | null;
+  currentFile: string | null;
 }
 
 const initialState: TerminalStateType = {
-  containerID: "a24e4ab3254a0d65379d4bc31f12a77e77ec4ba917739ce38fadc0ad2eb2e66d",
+  containerID: id,
   currentLang: "javascript",
   currentCode: null,
   currentLoc: null,
   terminalOutput: "",
   folderStructure: null,
+  currentFile: "main.js",
 };
 
 const TerminalSlice = createSlice({
@@ -81,9 +84,11 @@ const TerminalSlice = createSlice({
       containerApi.endpoints.testContainer.matchFulfilled,
       (state, action) => {
         const { output } = action.payload;
-        state.currentLoc = output[0].split("\n")[0];
-        state.folderStructure = output[1];
-        state.currentCode = output[2];
+        console.log(output);
+        state.currentFile = output[0]
+        state.currentLoc = output[1].split("\n")[0];
+        state.folderStructure = output[2];
+        state.currentCode = output[3];
       }
     );
 

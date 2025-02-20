@@ -3,6 +3,7 @@ import { LangIcon } from "./Types";
 import { FaC, FaGolang } from "react-icons/fa6";
 import { TbBrandCpp } from "react-icons/tb";
 
+//icons for languages
 export const langIcons: LangIcon[] = [
   {
     name: "NodeJS",
@@ -31,11 +32,25 @@ export const langIcons: LangIcon[] = [
 ];
 
 //languages to set for monaco editor
-export const langExt: Record<string, string> = {
-  js: "javascript",
-  py: "python",
-  txt: "plaintext",
-  java: "java",
-  go: "go",
-  c: "c",
+export const langExt: Record<string, { name: string; runCmd: string }> = {
+  js: {
+    name: "javascript",
+    runCmd: "node",
+  },
+  py:{
+    name: "python",
+    runCmd: "python",
+  },
+  java: {
+    name: "java",
+    runCmd: "java",
+  },
+  go: {
+    name: "go",
+    runCmd: "go run",
+  },
+  c: {
+    name: "c",
+    runCmd: "gcc main.c -o main && ./main",
+  },
 };

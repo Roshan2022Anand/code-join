@@ -5,9 +5,9 @@ import { setActiveSection } from "../../redux/slices/EditorSlice";
 import { Terminal as XTerminal } from "@xterm/xterm";
 import { useEffect, useRef } from "react";
 import { FitAddon } from "@xterm/addon-fit";
+import { useRunContainerMutation } from "../../redux/slices/TerminalSlice";
 //@ts-ignore
 import "@xterm/xterm/css/xterm.css";
-import { useRunContainerMutation } from "../../redux/slices/TerminalSlice";
 
 const Terminal = () => {
   //global state from redux
@@ -15,7 +15,7 @@ const Terminal = () => {
   const { activeSection, editorHeight, editorWidth } = useSelector(
     (state: RootState) => state.editor
   );
-  const { currentLoc, containerID } = useSelector(
+  const { currentLoc, containerID, terminalOutput } = useSelector(
     (state: RootState) => state.terminalS
   );
 
@@ -45,8 +45,9 @@ const Terminal = () => {
     fitAddon.current.fit();
   }, [editorHeight, editorWidth]);
 
-  const [run, { data, isSuccess }] = useRunContainerMutation();
+  const [run] = useRunContainerMutation();
 
+  //terminal operations
   useEffect(() => {
     const terminal = terminalInstance.current;
     if (!terminal || !currentLoc) return;
@@ -59,15 +60,19 @@ const Terminal = () => {
     };
 
     //show termjnal output
-    if (isSuccess && data) {
-      terminal.write("\r\n" + data.output);
-      // newLine();
+    if (terminalOutput) {
+      terminal.write("\r\n" + terminalOutput);
     }
-    //  else
-     newLine();
+    newLine();
 
     // Handle key press on terminal
-    terminal.onKey(({ key, domEvent }) => {
+    const handleKey = ({
+      key,
+      domEvent,
+    }: {
+      key: string;
+      domEvent: KeyboardEvent;
+    }) => {
       const printable =
         !domEvent.altKey && !domEvent.ctrlKey && !domEvent.metaKey;
       const keyCode = domEvent.keyCode;
@@ -76,7 +81,10 @@ const Terminal = () => {
       if (keyCode === 13) {
         if (containerID && commandBuffer !== "") {
           const cmd = commandBuffer.split(" ");
-          run({ containerID, cmd });
+          if (cmd[0] === "clear") {
+            newLine();
+            terminal.clear();
+          } else run({ containerID, cmd });
         } else newLine();
       } else if (keyCode == 8) {
         //pressed backspace key
@@ -88,12 +96,18 @@ const Terminal = () => {
         commandBuffer += key;
         terminal.write(key);
       }
-    });
-  }, [containerID, run, currentLoc, isSuccess, data]);
+    };
+
+    const keyListener = terminal.onKey(handleKey);
+    terminal.scrollToBottom();
+    return () => {
+      keyListener.dispose();
+    };
+  }, [containerID, run, currentLoc, terminalOutput]);
 
   return (
     <article
-      className={`flex-1 flex flex-col overflow-hidden rounded-md bg-secondary border-4 border-soft overflow-x-auto ${
+      className={`flex-1 flex flex-col overflow-hidden rounded-md bg-secondary border-4 border-soft ${
         activeSection == "terminal" && "border-4 border-accent-300"
       }`}
       onClick={() => dispatch(setActiveSection("terminal"))}

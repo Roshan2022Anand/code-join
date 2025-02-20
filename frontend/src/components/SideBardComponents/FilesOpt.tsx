@@ -20,7 +20,7 @@ const FilesOpt = () => {
     const handleFileClick = (fileName: string, loc: string) => {
       console.log(`node ${loc}${fileName}`);
       setactiveEle(fileName);
-      const lang = langExt[fileName.split(".").pop() as string] || "txt";
+      const lang = langExt[fileName.split(".").pop() as string].name || "txt";
       dispatch(setCurrentLang(lang));
     };
 

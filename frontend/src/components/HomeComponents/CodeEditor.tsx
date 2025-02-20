@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { setActiveSection } from "../../redux/slices/EditorSlice";
 import { useRunContainerMutation } from "../../redux/slices/TerminalSlice";
+import { langExt } from "../../utility/languages";
 
 const CodeEditor = () => {
   //global state from redux
@@ -13,7 +14,7 @@ const CodeEditor = () => {
   const { editorHeight, activeSection } = useSelector(
     (state: RootState) => state.editor
   );
-  const { containerID, currentLang, currentCode } = useSelector(
+  const { containerID, currentLang, currentCode, currentFile } = useSelector(
     (state: RootState) => state.terminalS
   );
 
@@ -42,11 +43,13 @@ const CodeEditor = () => {
   };
 
   //to run the program
-  const [runContainer] = useRunContainerMutation();
+  const [runPrg] = useRunContainerMutation();
   const handleRunPrg = async () => {
-    if (editorRef.current && containerID) {
-      const code = editorRef.current.getValue();
-      runContainer({ containerID, code });
+    if (editorRef.current && containerID && currentFile) {
+      // const code = editorRef.current.getValue();
+      const run = langExt[currentFile.split(".").pop() as string].runCmd;
+      const cmd = [run, currentFile as string];
+      runPrg({ containerID, cmd });
     }
   };
 
