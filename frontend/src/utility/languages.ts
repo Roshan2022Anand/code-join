@@ -29,3 +29,13 @@ export const langIcons: LangIcon[] = [
     icon: TbBrandCpp,
   },
 ];
+
+//languages to set for monaco editor
+export const langExt: Record<string, string> = {
+  js: "javascript",
+  py: "python",
+  txt: "plaintext",
+  java: "java",
+  go: "go",
+  c: "c",
+};

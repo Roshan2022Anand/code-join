@@ -67,7 +67,6 @@ export const TestContainer = async (req: Request, res: Response) => {
     stream.on("data", (data) => {
       output.push(data.slice(8).toString());
       if (output.length === 3) {
-        console.log(output);
         res.status(200).json({ output });
       }
     });
@@ -79,17 +78,12 @@ export const TestContainer = async (req: Request, res: Response) => {
 
 //to run a program in the container
 export const RunContainer = async (req: Request, res: Response) => {
+  console.log("Run Container");
   try {
-    // const { containerID, code } = req.body;
-    const { containerID } = req.body;
+    const { containerID, cmd } = req.body;
     let container = docker.getContainer(containerID);
     const exce = await container.exec({
-      // Cmd: ["node", "-e", code],
-      Cmd: [
-        "bash",
-        "-c",
-        "mkdir -p one two one/three && touch one/abc && ls -R",
-      ],
+      Cmd: cmd,
       AttachStdout: true,
       AttachStderr: true,
     });
@@ -97,16 +91,16 @@ export const RunContainer = async (req: Request, res: Response) => {
     const stream = await exce.start({ hijack: true, stdin: true });
 
     let output = "";
-    stream.on("data", (data) => {
-      console.log(data);
-      output += data.slice(8).toString();
-    });
+    stream
+      .on("data", (data) => {
+        output += data.slice(8).toString();
+      })
+      .on("end", () => {
+        res.status(200).json({ output });
+      });
 
-    stream.on("end", () => {
-      console.log(output);
-      res.status(200).json({ output });
-    });
   } catch (err) {
+    console.log(err);
     res.status(500).json({ message: "Server Error" });
   }
 };

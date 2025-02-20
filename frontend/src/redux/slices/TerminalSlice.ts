@@ -20,7 +20,7 @@ export const containerApi = createApi({
         method: "POST",
         body: {
           containerID:
-            "a952629760b1549d8094059761f9b1443edfb559b67d2387b905b6ae7d727e69",
+            "a24e4ab3254a0d65379d4bc31f12a77e77ec4ba917739ce38fadc0ad2eb2e66d",
         },
       }),
     }),
@@ -51,16 +51,16 @@ interface TerminalStateType {
   containerID: string | null;
   currentLang: string | null;
   currentCode: string | null;
-  currentLoc: string;
+  currentLoc: string|null;
   terminalOutput: string;
   folderStructure: string | null;
 }
 
 const initialState: TerminalStateType = {
-  containerID: null,
+  containerID: "a24e4ab3254a0d65379d4bc31f12a77e77ec4ba917739ce38fadc0ad2eb2e66d",
   currentLang: "javascript",
   currentCode: null,
-  currentLoc: "Loading...",
+  currentLoc: null,
   terminalOutput: "",
   folderStructure: null,
 };

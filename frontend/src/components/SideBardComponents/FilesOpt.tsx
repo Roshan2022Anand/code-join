@@ -1,21 +1,31 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { convertToFolder } from "../../utility/FolderConvertor";
 import { FolderStructureType } from "../../utility/Types";
 import { RootState } from "../../redux/store";
 import { useEffect, useState } from "react";
+import { setCurrentLang } from "../../redux/slices/TerminalSlice";
+import { langExt } from "../../utility/languages";
 
 const FilesOpt = () => {
+  const dispatch = useDispatch();
   const { folderStructure } = useSelector(
     (state: RootState) => state.terminalS
   );
 
   const [folderElement, setfolderElement] = useState<JSX.Element[]>([]);
   const [activeEle, setactiveEle] = useState("main.js");
-  
 
   useEffect(() => {
+    //to handle the click on the file
+    const handleFileClick = (fileName: string, loc: string) => {
+      console.log(`node ${loc}${fileName}`);
+      setactiveEle(fileName);
+      const lang = langExt[fileName.split(".").pop() as string] || "txt";
+      dispatch(setCurrentLang(lang));
+    };
+
     //to convert the JS object to JSX elements
-    const createElements = (folder: FolderStructureType) => {
+    const createElements = (folder: FolderStructureType, loc: string) => {
       const elements = [];
       for (const key in folder) {
         if (folder[key] == "file") {
@@ -23,7 +33,7 @@ const FilesOpt = () => {
             <h4
               className={`file-txt ${activeEle === key && "bg-accent-400"}`}
               key={key}
-              onClick={() => setactiveEle(key)}
+              onClick={() => handleFileClick(key, loc)}
             >
               {key}
             </h4>
@@ -38,7 +48,12 @@ const FilesOpt = () => {
               >
                 {key}
               </summary>
-              <pre>{createElements(folder[key] as FolderStructureType)}</pre>
+              <pre>
+                {createElements(
+                  folder[key] as FolderStructureType,
+                  `${loc}${key}/`
+                )}
+              </pre>
             </details>
           );
         }
@@ -47,8 +62,8 @@ const FilesOpt = () => {
     };
 
     if (!folderStructure) return;
-    setfolderElement(createElements(convertToFolder(folderStructure)));
-  }, [folderStructure, activeEle]);
+    setfolderElement(createElements(convertToFolder(folderStructure), ""));
+  }, [folderStructure, activeEle, dispatch]);
 
   return (
     <details className="size-full px-1" open>
