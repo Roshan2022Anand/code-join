@@ -6,32 +6,13 @@ import CodeEditor from "../components/HomeComponents/CodeEditor";
 import SideBar from "../components/HomeComponents/SideBar";
 import Header from "../components/HomeComponents/Header";
 import { setEditorHeight, setEditorWidth } from "../redux/slices/EditorSlice";
-import { io } from "socket.io-client";
-import { useMyContext } from "../utility/MyContext";
-import { useTestContainerMutation } from "../redux/slices/TerminalSlice";
 
 const HomePg = () => {
-  const [test] = useTestContainerMutation();
-  useEffect(() => {
-    test();
-  }, [test]);
-
-  //global state from context
-  const { setsocket } = useMyContext();
-
   //global state from redux
   const dispatch = useDispatch();
   const { editorWidth, sideBarOpt } = useSelector(
     (state: RootState) => state.editor
   );
-
-  //initilaizing the socket & url globally
-  useEffect(() => {
-    const newSocket = io(import.meta.env.VITE_BACKEND_URL, {
-      withCredentials: true,
-    });
-    if (newSocket) setsocket(newSocket);
-  }, [setsocket]);
 
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 

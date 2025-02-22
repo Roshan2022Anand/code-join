@@ -4,12 +4,14 @@ interface RoomState {
   userName: string | null;
   email: string | null;
   profile: string | null;
+  roomID: string | null;
 }
 
 const initialState: RoomState = {
   userName: null,
   email: null,
   profile: null,
+  roomID: null,
 };
 const RoomSlice = createSlice({
   name: "room",
@@ -21,8 +23,11 @@ const RoomSlice = createSlice({
       state.email = email;
       state.profile = profile;
     },
+    setRoomID: (state, action) => {
+      state.roomID = action.payload;
+    },
   },
 });
 
-export const { setBasicDetails } = RoomSlice.actions;
+export const { setBasicDetails, setRoomID } = RoomSlice.actions;
 export default RoomSlice.reducer;

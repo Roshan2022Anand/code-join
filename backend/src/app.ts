@@ -7,6 +7,7 @@ import { createServer } from "http";
 import session from "express-session";
 import GitHubStrategy from "passport-github";
 import passport from "passport";
+import { initSocket } from "./listeners/SocketConfig";
 
 const app = express();
 const server = createServer(app);
@@ -20,6 +21,7 @@ app.use(
     credentials: true,
   })
 );
+
 //session middleware configuration
 app.use(
   session({
@@ -69,13 +71,7 @@ app.get("/auth/user", (req, res) => {
   }
 });
 
-//Socket.io cors configuration
-export const io = new Server(server, {
-  cors: {
-    origin: process.env.FRONTEND_URL,
-    credentials: true,
-  },
-});
+initSocket(server);
 
 //home route
 app.get("/", (req, res) => {

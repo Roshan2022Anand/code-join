@@ -6,8 +6,8 @@ export const ConnectSocket = () => {
   const { setsocket } = useMyContext();
 
   useEffect(() => {
-    const newSocket = io(import.meta.env.VITE_BACKEND_URL as string);
-    if (!newSocket) return
+    const newSocket = io(import.meta.env.VITE_BACKEND_URL);
+    if (!newSocket) return;
     setsocket(newSocket);
     return () => {
       newSocket.disconnect();

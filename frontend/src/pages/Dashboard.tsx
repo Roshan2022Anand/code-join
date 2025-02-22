@@ -1,6 +1,6 @@
 import { FaToolbox } from "react-icons/fa";
 import { langIcons } from "../utility/languages";
-import { createElement, useEffect } from "react";
+import { createElement, useEffect, useRef } from "react";
 import {
   setCurrentLang,
   useCreateContainerMutation,
@@ -9,13 +9,20 @@ import { RiLoaderFill } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
+import { ConnectSocket } from "../sockets/ConnectSocket";
+import RoomServices from "../sockets/RoomSocket";
+import { toast } from "react-toastify";
 
 const Dashboard = () => {
+  const { createRoom, joinRoom } = RoomServices(); //hook to listen to room events
+  ConnectSocket(); //hook to connect to socket
+  const navigate = useNavigate();
+
   //global state from redux
   const dispatch = useDispatch();
-  const { email } = useSelector((state: RootState) => state.room);
-
-  const navigate = useNavigate();
+  const { email, profile, userName } = useSelector(
+    (state: RootState) => state.room
+  );
 
   //to check if user is authenticated
   useEffect(() => {
@@ -24,19 +31,36 @@ const Dashboard = () => {
 
   //to create a container
   const [create, { isLoading, isSuccess }] = useCreateContainerMutation();
-
   useEffect(() => {
-    if (isSuccess) navigate("/home");
-  }, [isSuccess, navigate]);
-
+    if (isSuccess) createRoom();
+  }, [isSuccess, createRoom]);
   const handleSetup = async (lang: string) => {
     dispatch(setCurrentLang(lang == "NodeJS" ? "javascript" : lang));
     await create({ lang });
   };
 
+  //to join a room
+  const idInput = useRef<HTMLInputElement>(null);
+  const handleJoinRoom = () => {
+    const value = idInput.current?.value;
+    if (!value || value == "") {
+      toast.error("Please enter a room ID");
+      return;
+    }
+    joinRoom(value);
+  };
+
   return (
-    <div className="h-screen content-center">
-      <main className="bg-secondary w-2/3 h-[35vh] md:size-[800px] rounded-lg overflow-hidden flex flex-col mx-auto relative">
+    <main className="h-screen flex flex-col items-center">
+      <nav className="w-full flex flex-row-reverse items-center gap-5 p-2">
+        <img
+          src={`${profile}`}
+          alt={`${userName}`}
+          className="size-[100px] rounded-full border-4 border-accent-300"
+        />
+        <h3>{userName}</h3>
+      </nav>
+      <article className="bg-secondary w-2/3 h-[35vh] md:size-[800px] rounded-lg overflow-hidden flex flex-col mrelative">
         {isLoading && (
           <div className="dashboard-loader">
             <RiLoaderFill className="size-[100px] text-accent-500 animate-spin mx-auto" />
@@ -63,12 +87,16 @@ const Dashboard = () => {
 
         <section className="flex items-center justify-end p-3 gap-3 ">
           <h3>OR</h3>
-          <button className=" size-fit p-2 bg-accent-500 rounded-lg">
+          <input type="text" ref={idInput} />
+          <button
+            className=" size-fit p-2 bg-accent-500 rounded-lg"
+            onClick={handleJoinRoom}
+          >
             <h3>Join Room</h3>
           </button>
         </section>
-      </main>
-    </div>
+      </article>
+    </main>
   );
 };
 

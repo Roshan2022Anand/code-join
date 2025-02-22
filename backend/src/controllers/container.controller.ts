@@ -103,15 +103,11 @@ export const RunTerminalCmd = async (req: Request, res: Response) => {
 };
 
 //to stop and remove the container
-export const StopContainer = async (req: Request, res: Response) => {
+export const StopContainer = async (containerID: string) => {
   try {
-    const { containerID } = req.body;
     let container = docker.getContainer(containerID);
     await container.kill();
-    console.log("Container Stopped");
-    res.status(200).json({ message: "Container stopped and removed" });
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: "Server Error" });
   }
 };
