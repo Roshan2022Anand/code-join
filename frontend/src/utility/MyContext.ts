@@ -5,8 +5,6 @@ import { Socket } from "socket.io-client";
 interface MyContextType {
   socket: Socket | null;
   setsocket: React.Dispatch<React.SetStateAction<Socket | null>>;
-  backendUrl: string;
-  setbackendUrl: React.Dispatch<React.SetStateAction<string>>;
 }
 
 // Create the context with an initial undefined value

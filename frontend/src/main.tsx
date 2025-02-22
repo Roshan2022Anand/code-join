@@ -7,8 +7,8 @@ import { Provider } from "react-redux";
 import { store } from "./redux/store.ts";
 //@ts-ignore
 import "./index.css";
-import ContextProvider from "./components/ContextProvider.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
+import ContextProvider from "./components/ContextProvider.tsx";
 
 const router = createBrowserRouter([
   { path: "/", element: <App /> },

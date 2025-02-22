@@ -7,11 +7,22 @@ import {
 } from "../redux/slices/TerminalSlice";
 import { RiLoaderFill } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../redux/store";
 
 const Dashboard = () => {
+  //global state from redux
   const dispatch = useDispatch();
+  const { email } = useSelector((state: RootState) => state.room);
+
   const navigate = useNavigate();
+
+  //to check if user is authenticated
+  useEffect(() => {
+    if (!email) navigate("/");
+  }, [email, navigate]);
+
+  //to create a container
   const [create, { isLoading, isSuccess }] = useCreateContainerMutation();
 
   useEffect(() => {
