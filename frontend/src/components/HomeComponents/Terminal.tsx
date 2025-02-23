@@ -15,7 +15,7 @@ const Terminal = () => {
   const { activeSection, editorHeight, editorWidth } = useSelector(
     (state: RootState) => state.editor
   );
-  const { currentLoc, containerID, terminalOutput } = useSelector(
+  const { terminalLoc, containerID, terminalOutput } = useSelector(
     (state: RootState) => state.terminalS
   );
 
@@ -41,8 +41,7 @@ const Terminal = () => {
 
   //fit terminal to the container when resize
   useEffect(() => {
-    if (!fitAddon.current) return;
-    fitAddon.current.fit();
+    fitAddon.current?.fit();
   }, [editorHeight, editorWidth]);
 
   const [run] = useRunContainerMutation();
@@ -50,13 +49,13 @@ const Terminal = () => {
   //terminal operations
   useEffect(() => {
     const terminal = terminalInstance.current;
-    if (!terminal || !currentLoc) return;
+    if (!terminal || !terminalLoc) return;
     let commandBuffer = "";
 
     //to create new line with current location
     const newLine = () => {
       commandBuffer = "";
-      terminal.write("\r\n" + currentLoc + " :> ");
+      terminal.write("\r\n" + terminalLoc + " :> ");
     };
 
     //show termjnal output
@@ -103,7 +102,7 @@ const Terminal = () => {
     return () => {
       keyListener.dispose();
     };
-  }, [containerID, run, currentLoc, terminalOutput]);
+  }, [containerID, run, terminalLoc, terminalOutput]);
 
   return (
     <article
@@ -116,7 +115,7 @@ const Terminal = () => {
         <IoTerminal className="icon-md" />
         <h3>Terminal</h3>
       </header>
-      <div ref={terminalRef} className="flex-1"></div>
+      <div ref={terminalRef} className="flex-1 size-full"></div>
     </article>
   );
 };

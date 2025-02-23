@@ -13,4 +13,6 @@ export const ConnectSocket = () => {
       newSocket.disconnect();
     };
   }, [setsocket]);
+
+  return null;
 };

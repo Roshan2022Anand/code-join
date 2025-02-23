@@ -5,18 +5,27 @@ import { FaCode, FaLaptopCode, FaPlay } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { setActiveSection } from "../../redux/slices/EditorSlice";
-import { useRunContainerMutation } from "../../redux/slices/TerminalSlice";
-import { langExt } from "../../utility/languages";
+import { useGetContainerQuery, useRunContainerMutation } from "../../redux/slices/TerminalSlice";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const CodeEditor = () => {
+  const navigate = useNavigate();
   //global state from redux
   const dispatch = useDispatch();
   const { editorHeight, activeSection } = useSelector(
     (state: RootState) => state.editor
   );
-  const { containerID, currentLang, currentCode, currentFile } = useSelector(
-    (state: RootState) => state.terminalS
-  );
+  const { containerID, editorLang, editorCode, openedFile, runCmd } =
+    useSelector((state: RootState) => state.terminalS);
+
+  //test case
+  useGetContainerQuery(containerID as string, { skip: !containerID });
+
+  //redirect to dashboard if no containerID
+  useEffect(() => {
+    if (!containerID) navigate("/dashboard");
+  }, [containerID, navigate]);
 
   // Set custom theme for monaco editor
   const monaco = useMonaco();
@@ -44,11 +53,11 @@ const CodeEditor = () => {
 
   //to run the program
   const [runPrg] = useRunContainerMutation();
-  const handleRunPrg = async () => {
-    if (editorRef.current && containerID && currentFile) {
-      // const code = editorRef.current.getValue();
-      const run = langExt[currentFile.split(".").pop() as string].runCmd;
-      const cmd = [run, currentFile as string];
+  const handleRunPrg = () => {
+    const code = editorRef.current?.getValue();
+    if (openedFile && code && containerID && runCmd) {
+      if (runCmd == "") toast.error("Language not supported");
+      const cmd = ["echo",code,` > ${openedFile} && `,runCmd, openedFile];
       runPrg({ containerID, cmd });
     }
   };
@@ -61,7 +70,7 @@ const CodeEditor = () => {
         }`}
         onClick={() => dispatch(setActiveSection("code"))}
         style={{
-          height: `clamp(5%,${editorHeight}px,90%)`,
+          height: `clamp(5%,${editorHeight}px,75%)`,
         }}
       >
         <header className="py-2 px-3 bg-soft flex gap-3 items-center justify-between">
@@ -71,18 +80,21 @@ const CodeEditor = () => {
             <FaPlay className="icon-md" />
           </button>
         </header>
-        {currentLang && currentCode ? (
-          <Editor
-            height="1000px"
-            language={currentLang}
-            theme="accentTheme"
-            value={currentCode}
-            onMount={handleEditorMount}
-            options={{
-              fontSize: 20,
-              minimap: { enabled: false },
-            }}
-          />
+        {editorLang && editorCode ? (
+          <>
+            <p>{openedFile}</p>
+            <Editor
+              height="1000px"
+              language={editorLang}
+              theme="accentTheme"
+              value={editorCode}
+              onMount={handleEditorMount}
+              options={{
+                fontSize: 20,
+                minimap: { enabled: false },
+              }}
+            />
+          </>
         ) : (
           <section className="flex-1 flex items-center justify-center">
             <FaLaptopCode className="icon-lg" />

@@ -1,15 +1,13 @@
 import express from "express";
 import {
   CreateContainer,
+  GetContainer,
   RunTerminalCmd,
-  StopContainer,
-  TestContainer,
 } from "../controllers/container.controller";
 const router = express.Router();
 
 router.post("/", CreateContainer);
-router.post("/test", TestContainer);
-router.delete("/", StopContainer);
+router.get("/", GetContainer);
 router.post("/run", RunTerminalCmd);
 
 export default router;

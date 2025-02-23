@@ -25,7 +25,7 @@ export const initSocket = (server: HttpServer) => {
         if (rooms[room].members[socket.id]) {
           delete rooms[room].members[socket.id];
           //if room is empty
-          if (Object.keys(rooms[room]).length === 0) {
+          if (Object.keys(rooms[room].members).length === 0) {
             StopContainer(rooms[room].containerID);
             delete rooms[room];
           }

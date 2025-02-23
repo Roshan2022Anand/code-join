@@ -21,9 +21,9 @@ export const containerApi = createApi({
         body,
       }),
     }),
-    getContainer: builder.query<void, string>({
+    getContainer: builder.query<{ output: string[] }, string>({
       query: (body) => ({
-        url: `/?${body}`,
+        url: `/?containerID=${body}`,
         method: "GET",
       }),
     }),
@@ -34,33 +34,30 @@ export const containerApi = createApi({
         body,
       }),
     }),
-    deleteContainer: builder.mutation<void, { containerID: string }>({
-      query: (body) => ({
-        url: "/",
-        method: "DELETE",
-        body,
-      }),
-    }),
   }),
 });
 interface TerminalStateType {
   containerID: string | null;
-  currentLang: string | null;
-  currentCode: string | null;
-  currentLoc: string | null;
+  editorLang: string | null;
+  editorCode: string | null;
+  terminalLoc: string | null;
   terminalOutput: string;
   folderStructure: string | null;
-  currentFile: string | null;
+  openedFile: string | null;
+  runCmd: string | null;
 }
 
 const initialState: TerminalStateType = {
-  containerID: null,
-  currentLang: "javascript",
-  currentCode: null,
-  currentLoc: null,
+  //test case
+  containerID:
+    "c92f6d6305db3791f60ea0cd88836c75dc95868248c008b4e98fca52f0326c54",
+  editorLang: null,
+  editorCode: null,
+  terminalLoc: null,
   terminalOutput: "",
   folderStructure: null,
-  currentFile: "main.js",
+  openedFile: null,
+  runCmd: null,
 };
 
 const TerminalSlice = createSlice({
@@ -70,8 +67,11 @@ const TerminalSlice = createSlice({
     setContainerID: (state, action) => {
       state.containerID = action.payload;
     },
-    setCurrentLang: (state, action) => {
-      state.currentLang = action.payload;
+    setOpenedFile: (state, action) => {
+      const { langObj, openedFile } = action.payload;
+      state.editorLang = langObj.name;
+      state.runCmd = langObj.runCmd;
+      state.openedFile = openedFile;
     },
   },
   extraReducers(builder) {
@@ -81,9 +81,18 @@ const TerminalSlice = createSlice({
       (state, action) => {
         const { containerID, output } = action.payload;
         state.containerID = containerID;
-        state.folderStructure = output[0];
-        state.currentCode = output[1];
-        state.currentLoc = output[2];
+        state.terminalLoc = output[0].split("\r\n")[0];
+        state.folderStructure = output[1];
+      }
+    );
+
+    //handle fulfilled for get container
+    builder.addMatcher(
+      containerApi.endpoints.getContainer.matchFulfilled,
+      (state, action) => {
+        const { output } = action.payload;
+        state.terminalLoc = output[0].split("\n")[0];
+        state.folderStructure = output[1];
       }
     );
 
@@ -101,9 +110,8 @@ export const {
   useGetContainerQuery,
   useCreateContainerMutation,
   useRunContainerMutation,
-  useDeleteContainerMutation,
 } = containerApi;
 
-export const { setContainerID, setCurrentLang } = TerminalSlice.actions;
+export const { setContainerID, setOpenedFile } = TerminalSlice.actions;
 
 export default TerminalSlice.reducer;

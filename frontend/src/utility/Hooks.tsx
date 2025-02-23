@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { isAxiosError } from "axios";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setBasicDetails } from "../redux/slices/RoomSlice";
@@ -25,11 +25,12 @@ export const useAuth = () => {
           })
         );
         naviagate("/dashboard");
-      } catch (error) {
-        console.log(error);
+      } catch (err) {
+        if (isAxiosError(err)) {
+          console.log(err.message);
+        }
       }
     };
     isAuth();
   }, [dispatch, naviagate]);
 };
-

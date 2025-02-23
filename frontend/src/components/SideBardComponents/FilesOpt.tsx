@@ -3,7 +3,7 @@ import { convertToFolder } from "../../utility/FolderConvertor";
 import { FolderStructureType } from "../../utility/Types";
 import { RootState } from "../../redux/store";
 import { useEffect, useState } from "react";
-import { setCurrentLang } from "../../redux/slices/TerminalSlice";
+import { setOpenedFile } from "../../redux/slices/TerminalSlice";
 import { langExt } from "../../utility/languages";
 
 const FilesOpt = () => {
@@ -13,21 +13,25 @@ const FilesOpt = () => {
   );
 
   const [folderElement, setfolderElement] = useState<JSX.Element[]>([]);
-  const [activeEle, setactiveEle] = useState("main.js");
+  const [activeEle, setactiveEle] = useState("");
 
   useEffect(() => {
     //to handle the click on the file
     const handleFileClick = (fileName: string, loc: string) => {
-      console.log(`node ${loc}${fileName}`);
       setactiveEle(fileName);
-      const lang = langExt[fileName.split(".").pop() as string].name || "txt";
-      dispatch(setCurrentLang(lang));
+      const openedFile = `${loc}${fileName}`;
+      const langObj = langExt[fileName.split(".").pop() as string] || {
+        name: "plaintext",
+        runCmd: "",
+      };
+      dispatch(setOpenedFile({ langObj, openedFile }));
     };
 
     //to convert the JS object to JSX elements
     const createElements = (folder: FolderStructureType, loc: string) => {
       const elements = [];
       for (const key in folder) {
+        //if it is a file
         if (folder[key] == "file") {
           elements.push(
             <h4
@@ -39,6 +43,7 @@ const FilesOpt = () => {
             </h4>
           );
         } else {
+          //if it is a folder
           elements.push(
             <details key={key} className="ml-3">
               <summary

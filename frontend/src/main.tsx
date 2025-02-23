@@ -10,6 +10,7 @@ import "./index.css";
 import Dashboard from "./pages/Dashboard.tsx";
 import ContextProvider from "./components/ContextProvider.tsx";
 import { Bounce, ToastContainer } from "react-toastify";
+import { ConnectSocket } from "./sockets/ConnectSocket.tsx";
 
 const router = createBrowserRouter([
   { path: "/", element: <App /> },
@@ -21,7 +22,7 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ToastContainer
       position="top-right"
-      autoClose={5000}
+      autoClose={3000}
       hideProgressBar={false}
       newestOnTop={false}
       closeOnClick={true}
@@ -31,6 +32,7 @@ createRoot(document.getElementById("root")!).render(
       transition={Bounce}
     />
     <ContextProvider>
+    <ConnectSocket />
       <Provider store={store}>
         <RouterProvider router={router} />
       </Provider>

@@ -1,25 +1,19 @@
 import { FaToolbox } from "react-icons/fa";
 import { langIcons } from "../utility/languages";
 import { createElement, useEffect, useRef } from "react";
-import {
-  setCurrentLang,
-  useCreateContainerMutation,
-} from "../redux/slices/TerminalSlice";
+import { useCreateContainerMutation } from "../redux/slices/TerminalSlice";
 import { RiLoaderFill } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
-import { ConnectSocket } from "../sockets/ConnectSocket";
 import RoomServices from "../sockets/RoomSocket";
 import { toast } from "react-toastify";
 
 const Dashboard = () => {
   const { createRoom, joinRoom } = RoomServices(); //hook to listen to room events
-  ConnectSocket(); //hook to connect to socket
   const navigate = useNavigate();
 
   //global state from redux
-  const dispatch = useDispatch();
   const { email, profile, userName } = useSelector(
     (state: RootState) => state.room
   );
@@ -31,13 +25,13 @@ const Dashboard = () => {
 
   //to create a container
   const [create, { isLoading, isSuccess }] = useCreateContainerMutation();
+  const success = useRef(true);
   useEffect(() => {
-    if (isSuccess) createRoom();
+    if (isSuccess && success.current) {
+      createRoom();
+      success.current = false;
+    }
   }, [isSuccess, createRoom]);
-  const handleSetup = async (lang: string) => {
-    dispatch(setCurrentLang(lang == "NodeJS" ? "javascript" : lang));
-    await create({ lang });
-  };
 
   //to join a room
   const idInput = useRef<HTMLInputElement>(null);
@@ -76,7 +70,7 @@ const Dashboard = () => {
               <button
                 key={name}
                 className="prg-opt-btn rounded-lg bg-accent-700 p-2 size-fit"
-                onClick={() => handleSetup(name)}
+                onClick={() => create({ lang: name })}
               >
                 {createElement(icon, { className: "icon-md" })}
                 <h3 className="text-accent-200">/{name}</h3>
@@ -87,7 +81,12 @@ const Dashboard = () => {
 
         <section className="flex items-center justify-end p-3 gap-3 ">
           <h3>OR</h3>
-          <input type="text" className="px-1 border-2 border-accent-600 h-full rounded-md w-1/3 outline-none font-bold" ref={idInput} placeholder="roomID123"/>
+          <input
+            type="text"
+            className="px-1 border-2 border-accent-600 h-full rounded-md w-1/3 outline-none font-bold"
+            ref={idInput}
+            placeholder="roomID123"
+          />
           <button
             className=" size-fit p-2 bg-accent-500 rounded-lg"
             onClick={handleJoinRoom}

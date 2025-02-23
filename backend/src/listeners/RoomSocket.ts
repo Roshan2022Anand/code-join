@@ -1,6 +1,7 @@
 import { Socket } from "socket.io";
 import { rooms } from "../configs/Socket";
 const RoomOperations = (socket: Socket) => {
+  //event to create a room
   socket.on("create-room", ({ roomID, name, profile, containerID }) => {
     if (rooms[roomID]) {
       socket.emit("error", "Room already exists");
@@ -12,6 +13,7 @@ const RoomOperations = (socket: Socket) => {
     }
   });
 
+  //event to join a room
   socket.on("join-room", ({ roomID, name, profile }) => {
     if (rooms[roomID]) {
       rooms[roomID].members[socket.id] = { name, profile };

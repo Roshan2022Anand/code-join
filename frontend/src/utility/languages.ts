@@ -37,7 +37,7 @@ export const langExt: Record<string, { name: string; runCmd: string }> = {
     name: "javascript",
     runCmd: "node",
   },
-  py:{
+  py: {
     name: "python",
     runCmd: "python",
   },

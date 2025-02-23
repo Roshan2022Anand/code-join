@@ -15,15 +15,12 @@ export const CreateContainer = async (req: Request, res: Response) => {
       Image: language.env,
       AttachStdin: true,
       AttachStdout: true,
-      HostConfig: {
-        AutoRemove: true,
-      },
       Tty: true,
       WorkingDir: "/root",
       Cmd: [
         "bash",
         "-c",
-        `echo '${language.code}' > main.${language.ext} && ls -R && cat main.${language.ext} && exec bash`,
+        `echo '${language.code}' > main.${language.ext} && pwd && ls -R && cat main.${language.ext} && exec bash`,
       ],
     });
 
@@ -35,10 +32,10 @@ export const CreateContainer = async (req: Request, res: Response) => {
       stderr: true,
     });
 
-    let output: string[] = [`main.${language.ext}`];
+    let output: string[] = [];
     stream.on("data", (data) => {
       output.push(data.toString());
-      if (output.length === 4)
+      if (output.length === 2)
         res.status(200).json({ containerID: container.id, output });
     });
 
@@ -49,26 +46,28 @@ export const CreateContainer = async (req: Request, res: Response) => {
   }
 };
 
-export const TestContainer = async (req: Request, res: Response) => {
+//to read the container
+export const GetContainer = async (req: Request, res: Response) => {
   try {
-    const { containerID } = req.body;
-    const container = docker.getContainer(containerID);
-
+    const { containerID } = req.query;
+    const container = docker.getContainer(containerID as string);
     const exec = await container.exec({
-      Cmd: ["bash", "-c", "pwd && ls -R && cat main.js"],
+      Cmd: ["bash", "-c", "pwd && ls -R"],
       AttachStdout: true,
       AttachStderr: true,
     });
 
     const stream = await exec.start({ hijack: true, stdin: true });
 
-    let output: string[] = ["main.js"];
-    stream.on("data", (data) => {
-      output.push(data.slice(8).toString());
-      if (output.length === 4) {
+    let output: string[] = [];
+
+    stream
+      .on("data", (data) => {
+        output.push(data.slice(8).toString());
+      })
+      .on("end", () => {
         res.status(200).json({ output });
-      }
-    });
+      });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Server Error" });
@@ -80,13 +79,13 @@ export const RunTerminalCmd = async (req: Request, res: Response) => {
   try {
     const { containerID, cmd } = req.body;
     let container = docker.getContainer(containerID);
-    const exce = await container.exec({
+    const exec = await container.exec({
       Cmd: cmd,
       AttachStdout: true,
       AttachStderr: true,
     });
 
-    const stream = await exce.start({ hijack: true, stdin: true });
+    const stream = await exec.start({ hijack: true, stdin: true });
 
     let output = "";
     stream
@@ -106,7 +105,9 @@ export const RunTerminalCmd = async (req: Request, res: Response) => {
 export const StopContainer = async (containerID: string) => {
   try {
     let container = docker.getContainer(containerID);
-    await container.kill();
+    await container.stop();
+    await container.remove();
+    console.log("Container Stopped");
   } catch (err) {
     console.log(err);
   }

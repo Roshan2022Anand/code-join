@@ -49,11 +49,12 @@ const RoomServices = () => {
   //to create a room
   const createRoom = () => {
     //generate a room id using crypto
-    const array = new Uint8Array(length / 2);
+    const array = new Uint8Array(16);
     window.crypto.getRandomValues(array);
     const id = Array.from(array, (dec) => dec.toString(16).padStart(2, "0"))
       .join("")
-      .slice(0, length);
+      .slice(0, 16);
+    console.log(id);
 
     //emit create-room event
     socket?.emit("create-room", {
