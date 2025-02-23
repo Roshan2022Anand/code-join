@@ -87,7 +87,7 @@ const Dashboard = () => {
 
         <section className="flex items-center justify-end p-3 gap-3 ">
           <h3>OR</h3>
-          <input type="text" ref={idInput} />
+          <input type="text" className="px-1 border-2 border-accent-600 h-full rounded-md w-1/3 outline-none font-bold" ref={idInput} placeholder="roomID123"/>
           <button
             className=" size-fit p-2 bg-accent-500 rounded-lg"
             onClick={handleJoinRoom}

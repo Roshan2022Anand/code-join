@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import { rooms } from "./SocketConfig";
+import { rooms } from "../configs/Socket";
 const RoomOperations = (socket: Socket) => {
   socket.on("create-room", ({ roomID, name, profile, containerID }) => {
     if (rooms[roomID]) {

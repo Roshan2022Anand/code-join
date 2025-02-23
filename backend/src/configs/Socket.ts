@@ -1,6 +1,6 @@
 import { Server } from "socket.io";
 import { Server as HttpServer } from "http";
-import RoomOperations from "./RoomSocket";
+import RoomOperations from "../listeners/RoomSocket";
 import { StopContainer } from "../controllers/container.controller";
 import { Room } from "../helpers/Types";
 
