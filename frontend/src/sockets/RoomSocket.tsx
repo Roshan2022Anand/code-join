@@ -54,7 +54,6 @@ const RoomServices = () => {
     const id = Array.from(array, (dec) => dec.toString(16).padStart(2, "0"))
       .join("")
       .slice(0, 16);
-    console.log(id);
 
     //emit create-room event
     socket?.emit("create-room", {

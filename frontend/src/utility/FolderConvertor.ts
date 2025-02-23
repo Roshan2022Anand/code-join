@@ -1,15 +1,13 @@
-
 import { FolderStructureType } from "./Types";
 
 export const convertToFolder = (folder: string): FolderStructureType => {
-  const folderStruct: FolderStructureType = {};
-
+  const folderStruct: FolderStructureType = {
+    root:{}
+  };
   const filteredFolder = folder
     .split("\n")
     .map((item) => {
-      if (item.split("")[0] == ".")
-        item = item.replace(".", "").replace(":", "");
-
+      if (item[0] == "/") item = item.replace(":", "");
       return item;
     })
     .filter((item) => item !== "");

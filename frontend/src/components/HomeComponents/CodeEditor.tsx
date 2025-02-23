@@ -5,7 +5,10 @@ import { FaCode, FaLaptopCode, FaPlay } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { setActiveSection } from "../../redux/slices/EditorSlice";
-import { useGetContainerQuery, useRunContainerMutation } from "../../redux/slices/TerminalSlice";
+import {
+  useGetContainerQuery,
+  useRunContainerMutation,
+} from "../../redux/slices/TerminalSlice";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -54,11 +57,13 @@ const CodeEditor = () => {
   //to run the program
   const [runPrg] = useRunContainerMutation();
   const handleRunPrg = () => {
-    const code = editorRef.current?.getValue();
+    const code = "console.log('Hello World')";
+    // const code = editorRef.current?.getValue();
     if (openedFile && code && containerID && runCmd) {
       if (runCmd == "") toast.error("Language not supported");
-      const cmd = ["echo",code,` > ${openedFile} && `,runCmd, openedFile];
-      runPrg({ containerID, cmd });
+      const cmd = `echo "${code}" > ${openedFile} &&  ${runCmd} ${openedFile}`;
+      console.log(cmd);
+      runPrg({ containerID, cmd, WorkingDir: "/root" });
     }
   };
 

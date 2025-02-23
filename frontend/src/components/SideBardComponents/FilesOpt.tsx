@@ -12,6 +12,10 @@ const FilesOpt = () => {
     (state: RootState) => state.terminalS
   );
 
+  useEffect(() => {
+    if (!folderStructure) return;
+    convertToFolder(folderStructure);
+  }, [folderStructure]);
   const [folderElement, setfolderElement] = useState<JSX.Element[]>([]);
   const [activeEle, setactiveEle] = useState("");
 
@@ -67,7 +71,8 @@ const FilesOpt = () => {
     };
 
     if (!folderStructure) return;
-    setfolderElement(createElements(convertToFolder(folderStructure), ""));
+    const { root } = convertToFolder(folderStructure);
+    setfolderElement(createElements(root as FolderStructureType, ""));
   }, [folderStructure, activeEle, dispatch]);
 
   return (

@@ -19,11 +19,14 @@ const Terminal = () => {
     (state: RootState) => state.terminalS
   );
 
+  const flag = useRef(true);
+
   // Initialize terminal
   const terminalRef = useRef<HTMLDivElement>(null);
   const fitAddon = useRef<FitAddon | null>(null);
   const terminalInstance = useRef<XTerminal | null>(null);
   useEffect(() => {
+    if (!flag.current) return;
     if (!terminalRef.current) return;
     fitAddon.current = new FitAddon();
     terminalInstance.current = new XTerminal({
@@ -34,10 +37,16 @@ const Terminal = () => {
     terminal.open(terminalRef.current);
     fitAddon.current.fit();
 
+    console.log(terminalLoc, flag.current);
+    if (terminalLoc) {
+      terminal.write(terminalLoc + " :> ");
+      flag.current = false;
+    }
+
     return () => {
-      terminal.dispose();
+      if (flag.current) terminal.dispose();
     };
-  }, []);
+  }, [terminalLoc]);
 
   //fit terminal to the container when resize
   useEffect(() => {
@@ -60,9 +69,9 @@ const Terminal = () => {
 
     //show termjnal output
     if (terminalOutput) {
-      terminal.write("\r\n" + terminalOutput);
+      if (terminalOutput !== " ") terminal.write("\r\n" + terminalOutput);
+      newLine();
     }
-    newLine();
 
     // Handle key press on terminal
     const handleKey = ({
@@ -79,11 +88,11 @@ const Terminal = () => {
       //pressed enter key
       if (keyCode === 13) {
         if (containerID && commandBuffer !== "") {
-          const cmd = commandBuffer.split(" ");
-          if (cmd[0] === "clear") {
+          if (commandBuffer.split(" ")[0] === "clear") {
             newLine();
             terminal.clear();
-          } else run({ containerID, cmd });
+          } else
+            run({ containerID, cmd: commandBuffer, WorkingDir: terminalLoc });
         } else newLine();
       } else if (keyCode == 8) {
         //pressed backspace key

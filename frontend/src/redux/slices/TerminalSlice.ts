@@ -3,8 +3,8 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import {
   CreateContArg,
   CreateContRes,
+  outputRes,
   RunContArg,
-  RunContRes,
 } from "../../utility/Types";
 
 // API slice for container
@@ -21,13 +21,13 @@ export const containerApi = createApi({
         body,
       }),
     }),
-    getContainer: builder.query<{ output: string[] }, string>({
+    getContainer: builder.query<outputRes, string>({
       query: (body) => ({
         url: `/?containerID=${body}`,
         method: "GET",
       }),
     }),
-    runContainer: builder.mutation<RunContRes, RunContArg>({
+    runContainer: builder.mutation<outputRes, RunContArg>({
       query: (body) => ({
         url: "/run",
         method: "POST",
@@ -41,7 +41,7 @@ interface TerminalStateType {
   editorLang: string | null;
   editorCode: string | null;
   terminalLoc: string | null;
-  terminalOutput: string;
+  terminalOutput: string | null;
   folderStructure: string | null;
   openedFile: string | null;
   runCmd: string | null;
@@ -54,7 +54,7 @@ const initialState: TerminalStateType = {
   editorLang: null,
   editorCode: null,
   terminalLoc: null,
-  terminalOutput: "",
+  terminalOutput: null,
   folderStructure: null,
   openedFile: null,
   runCmd: null,
@@ -96,11 +96,25 @@ const TerminalSlice = createSlice({
       }
     );
 
+    //handle pending for run container
+    builder.addMatcher(
+      containerApi.endpoints.runContainer.matchPending,
+      (state) => {
+        state.terminalOutput = null;
+      }
+    );
+
     //handle fulfilled for run container
     builder.addMatcher(
       containerApi.endpoints.runContainer.matchFulfilled,
       (state, action) => {
-        state.terminalOutput = action.payload.output;
+        const output = [...action.payload.output];
+        if (output.length === 1) state.terminalOutput = output[0];
+        else {
+          state.folderStructure = output.pop() as string;
+          state.terminalLoc = output.pop()?.split("\n")[0] as string;
+          state.terminalOutput = output.pop() || " ";
+        }
       }
     );
   },
