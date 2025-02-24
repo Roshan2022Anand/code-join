@@ -57,15 +57,21 @@ const CodeEditor = () => {
   //to run the program
   const [runPrg] = useRunContainerMutation();
   const handleRunPrg = () => {
-    const code = "console.log('Hello World')";
-    // const code = editorRef.current?.getValue();
+    const code = editorRef.current?.getValue();
     if (openedFile && code && containerID && runCmd) {
       if (runCmd == "") toast.error("Language not supported");
       const cmd = `echo "${code}" > ${openedFile} &&  ${runCmd} ${openedFile}`;
       console.log(cmd);
-      runPrg({ containerID, cmd, WorkingDir: "/root" });
+      runPrg({ cmd, WorkingDir: "/root" });
     }
   };
+
+  //to save the code
+  useEffect(() => {
+    return () => {
+      if (activeSection == "code") console.log("code editor unmounted");
+    };
+  }, [activeSection]);
 
   return (
     <>

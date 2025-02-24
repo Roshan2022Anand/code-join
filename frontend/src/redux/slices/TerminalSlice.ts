@@ -23,15 +23,27 @@ export const containerApi = createApi({
     }),
     getContainer: builder.query<outputRes, string>({
       query: (body) => ({
-        url: `/?containerID=${body}`,
+        url: `/`,
         method: "GET",
+        params: { containerID: body },
       }),
     }),
     runContainer: builder.mutation<outputRes, RunContArg>({
       query: (body) => ({
         url: "/run",
         method: "POST",
-        body,
+        body: {
+          containerID: initialState.containerID,
+          cmd: body.cmd,
+          WorkingDir: body.WorkingDir,
+        },
+      }),
+    }),
+    getFileCode: builder.query<{ output: string }, string>({
+      query: (body) => ({
+        url: "/file",
+        method: "GET",
+        params: { containerID: initialState.containerID, fileLoc: body },
       }),
     }),
   }),
@@ -53,9 +65,9 @@ const initialState: TerminalStateType = {
     "c92f6d6305db3791f60ea0cd88836c75dc95868248c008b4e98fca52f0326c54",
   editorLang: null,
   editorCode: null,
-  terminalLoc: null,
-  terminalOutput: null,
-  folderStructure: null,
+  terminalLoc: null, //
+  terminalOutput: null, //
+  folderStructure: null, //
   openedFile: null,
   runCmd: null,
 };
@@ -117,11 +129,20 @@ const TerminalSlice = createSlice({
         }
       }
     );
+
+    builder.addMatcher(
+      containerApi.endpoints.getFileCode.matchFulfilled,
+      (state, action) => {
+        state.editorCode = action.payload.output;
+      }
+    );
   },
 });
 
 export const {
   useGetContainerQuery,
+  useLazyGetContainerQuery,
+  useLazyGetFileCodeQuery,
   useCreateContainerMutation,
   useRunContainerMutation,
 } = containerApi;

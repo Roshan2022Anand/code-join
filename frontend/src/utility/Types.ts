@@ -2,7 +2,6 @@ import { IconType } from "react-icons";
 
 //all RTK Query types
 export type RunContArg = {
-  containerID: string;
   cmd: string;
   WorkingDir: string;
 };

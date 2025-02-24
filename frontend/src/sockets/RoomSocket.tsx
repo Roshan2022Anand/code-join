@@ -3,7 +3,10 @@ import { RootState } from "../redux/store";
 import { useEffect } from "react";
 import { useMyContext } from "../utility/MyContext";
 import { setRoomID } from "../redux/slices/RoomSlice";
-import { setContainerID } from "../redux/slices/TerminalSlice";
+import {
+  setContainerID,
+  useLazyGetContainerQuery,
+} from "../redux/slices/TerminalSlice";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
@@ -14,6 +17,8 @@ const RoomServices = () => {
   const dispatch = useDispatch();
   const { userName, profile } = useSelector((state: RootState) => state.room);
   const { containerID } = useSelector((state: RootState) => state.terminalS);
+
+  const [getContainer] = useLazyGetContainerQuery();
 
   //socket from context
   const { socket } = useMyContext();
@@ -32,6 +37,7 @@ const RoomServices = () => {
     socket.on("room-joined", ({ roomID, containerID }) => {
       dispatch(setRoomID(roomID));
       dispatch(setContainerID(containerID));
+      getContainer(containerID);
       navigate("/home");
     });
 

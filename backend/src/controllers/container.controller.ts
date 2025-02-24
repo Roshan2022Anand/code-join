@@ -20,7 +20,7 @@ export const CreateContainer = async (req: Request, res: Response) => {
       Cmd: [
         "bash",
         "-c",
-        `echo '${language.code}' > main.${language.ext} && pwd && ls /root -R && cat main.${language.ext} && exec bash`,
+        `echo '${language.code}' > main.${language.ext} && pwd && ls /root -R && exec bash`,
       ],
     });
 
@@ -80,7 +80,11 @@ export const RunTerminalCmd = async (req: Request, res: Response) => {
     const { containerID, cmd, WorkingDir } = req.body;
     let container = docker.getContainer(containerID);
     const exec = await container.exec({
-      Cmd: ["bash", "-c", `${cmd} && pwd && ls /root -R`],
+      Cmd: [
+        "bash",
+        "-c",
+        `${cmd} && echo "_brk_" && pwd && echo "_brk_" && ls /root -R`,
+      ],
       WorkingDir,
       AttachStdout: true,
       AttachStderr: true,
@@ -88,13 +92,36 @@ export const RunTerminalCmd = async (req: Request, res: Response) => {
 
     const stream = await exec.start({ hijack: true, stdin: true });
 
-    let output: string[] = [];
+    let output: string = "";
     stream
       .on("data", (data) => {
-        output.push(data.slice(8).toString());
+        output += data.slice(8).toString();
       })
       .on("end", () => {
-        console.log(output);
+        res.status(200).json({ output: output.split("_brk_\n") });
+      });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+export const GetFileCode = async (req: Request, res: Response) => {
+  try {
+    const { containerID, fileLoc } = req.query;
+    const container = docker.getContainer(containerID as string);
+    const exec = await container.exec({
+      Cmd: ["cat", fileLoc as string],
+      AttachStdout: true,
+      AttachStderr: true,
+    });
+    const stream = await exec.start({ hijack: true, stdin: true });
+    let output: string = "";
+    stream
+      .on("data", (data) => {
+        output += data.slice(8).toString();
+      })
+      .on("end", () => {
         res.status(200).json({ output });
       });
   } catch (err) {

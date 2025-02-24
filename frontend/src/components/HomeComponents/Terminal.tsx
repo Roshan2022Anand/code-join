@@ -15,7 +15,7 @@ const Terminal = () => {
   const { activeSection, editorHeight, editorWidth } = useSelector(
     (state: RootState) => state.editor
   );
-  const { terminalLoc, containerID, terminalOutput } = useSelector(
+  const { terminalLoc, terminalOutput } = useSelector(
     (state: RootState) => state.terminalS
   );
 
@@ -26,7 +26,7 @@ const Terminal = () => {
   const fitAddon = useRef<FitAddon | null>(null);
   const terminalInstance = useRef<XTerminal | null>(null);
   useEffect(() => {
-    if (!flag.current) return;
+    if (!flag.current) return; //flag to avoid re-rendering of terminal
     if (!terminalRef.current) return;
     fitAddon.current = new FitAddon();
     terminalInstance.current = new XTerminal({
@@ -37,7 +37,6 @@ const Terminal = () => {
     terminal.open(terminalRef.current);
     fitAddon.current.fit();
 
-    console.log(terminalLoc, flag.current);
     if (terminalLoc) {
       terminal.write(terminalLoc + " :> ");
       flag.current = false;
@@ -87,13 +86,11 @@ const Terminal = () => {
 
       //pressed enter key
       if (keyCode === 13) {
-        if (containerID && commandBuffer !== "") {
-          if (commandBuffer.split(" ")[0] === "clear") {
-            newLine();
-            terminal.clear();
-          } else
-            run({ containerID, cmd: commandBuffer, WorkingDir: terminalLoc });
-        } else newLine();
+        if (commandBuffer === "") newLine();
+        else if (commandBuffer.split(" ")[0] === "clear") {
+          newLine();
+          terminal.clear();
+        } else run({ cmd: commandBuffer, WorkingDir: terminalLoc });
       } else if (keyCode == 8) {
         //pressed backspace key
         if (commandBuffer == "") return;
@@ -111,7 +108,7 @@ const Terminal = () => {
     return () => {
       keyListener.dispose();
     };
-  }, [containerID, run, terminalLoc, terminalOutput]);
+  }, [run, terminalLoc, terminalOutput]);
 
   return (
     <article
