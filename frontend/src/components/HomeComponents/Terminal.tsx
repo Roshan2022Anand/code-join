@@ -15,7 +15,7 @@ const Terminal = () => {
   const { activeSection, editorHeight, editorWidth } = useSelector(
     (state: RootState) => state.editor
   );
-  const { terminalLoc, terminalOutput } = useSelector(
+  const { terminalLoc, terminalOutput, containerID } = useSelector(
     (state: RootState) => state.terminalS
   );
 
@@ -90,7 +90,8 @@ const Terminal = () => {
         else if (commandBuffer.split(" ")[0] === "clear") {
           newLine();
           terminal.clear();
-        } else run({ cmd: commandBuffer, WorkingDir: terminalLoc });
+        } else
+          run({ containerID, cmd: commandBuffer, WorkingDir: terminalLoc });
       } else if (keyCode == 8) {
         //pressed backspace key
         if (commandBuffer == "") return;
@@ -108,7 +109,7 @@ const Terminal = () => {
     return () => {
       keyListener.dispose();
     };
-  }, [run, terminalLoc, terminalOutput]);
+  }, [run, terminalLoc, terminalOutput, containerID]);
 
   return (
     <article

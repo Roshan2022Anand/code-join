@@ -58,20 +58,34 @@ const CodeEditor = () => {
   const [runPrg] = useRunContainerMutation();
   const handleRunPrg = () => {
     const code = editorRef.current?.getValue();
-    if (openedFile && code && containerID && runCmd) {
+    if (code) {
+      //setting up the run command
+      let run = "";
       if (runCmd == "") toast.error("Language not supported");
-      const cmd = `echo "${code}" > ${openedFile} &&  ${runCmd} ${openedFile}`;
-      console.log(cmd);
-      runPrg({ cmd, WorkingDir: "/root" });
+      else run = `&& ${runCmd} ${openedFile}`;
+
+      //escaping special characters
+      const filteredCode = code.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+
+      const cmd = `echo "${filteredCode}" > ${openedFile} ` + run;
+      runPrg({ containerID, cmd, WorkingDir: "/root" });
     }
   };
 
   //to save the code
   useEffect(() => {
     return () => {
-      if (activeSection == "code") console.log("code editor unmounted");
+      if (activeSection == "code" && editorRef.current) {
+        const code = editorRef.current.getValue();
+        const filteredCode = code.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+        runPrg({
+          containerID,
+          cmd: `echo "${filteredCode}" > ${openedFile} `,
+          WorkingDir: "/root",
+        });
+      }
     };
-  }, [activeSection]);
+  }, [activeSection, runPrg, containerID, openedFile]);
 
   return (
     <>
@@ -91,9 +105,9 @@ const CodeEditor = () => {
             <FaPlay className="icon-md" />
           </button>
         </header>
-        {editorLang && editorCode ? (
+        {editorLang && editorCode !== null ? (
           <>
-            <p>{openedFile}</p>
+            <p>{openedFile?.replace(/\//g, " > ")}</p>
             <Editor
               height="1000px"
               language={editorLang}

@@ -41,16 +41,28 @@ export const langExt: Record<string, { name: string; runCmd: string }> = {
     name: "python",
     runCmd: "python",
   },
+  c: {
+    name: "c",
+    runCmd: "gcc", // typically you'd compile with gcc then run the output binary
+  },
+  cpp: {
+    name: "cpp",
+    runCmd: "g++", // similarly, compile with g++ then run the binary
+  },
   java: {
     name: "java",
-    runCmd: "java",
+    runCmd: "java", // usually compile with javac first, then run with java
   },
   go: {
     name: "go",
-    runCmd: "go run",
+    runCmd: "go run", // go supports running the file directly with go run
   },
-  c: {
-    name: "c",
-    runCmd: "gcc main.c -o main && ./main",
+  json: {
+    name: "json",
+    runCmd: "", // JSON files are data and don't have a run command
+  },
+  md: {
+    name: "markdown",
+    runCmd: "", // Markdown is not executable
   },
 };

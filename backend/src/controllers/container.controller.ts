@@ -2,7 +2,8 @@ import { Request, Response } from "express";
 import Docker from "dockerode";
 import { languages } from "../helpers/PrgLang";
 import { langKey } from "../helpers/Types";
-const docker = new Docker();
+
+const docker = new Docker({ socketPath: "//./pipe/docker_engine" });
 
 // to create a container
 export const CreateContainer = async (req: Request, res: Response) => {
@@ -35,8 +36,10 @@ export const CreateContainer = async (req: Request, res: Response) => {
     let output: string[] = [];
     stream.on("data", (data) => {
       output.push(data.toString());
-      if (output.length === 2)
+      if (output.length === 2) {
+        output[1] = output[1].split("\r").join("");
         res.status(200).json({ containerID: container.id, output });
+      }
     });
 
     await container.start();
@@ -95,6 +98,7 @@ export const RunTerminalCmd = async (req: Request, res: Response) => {
     let output: string = "";
     stream
       .on("data", (data) => {
+        // console.log(data.slice(8).toString());
         output += data.slice(8).toString();
       })
       .on("end", () => {

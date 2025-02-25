@@ -12,7 +12,7 @@ import { langExt } from "../../utility/languages";
 const FilesOpt = () => {
   //global state from redux
   const dispatch = useDispatch();
-  const { folderStructure } = useSelector(
+  const { folderStructure, containerID } = useSelector(
     (state: RootState) => state.terminalS
   );
 
@@ -24,13 +24,16 @@ const FilesOpt = () => {
   useEffect(() => {
     //to handle the click on the file
     const handleFileClick = (fileName: string, loc: string) => {
-      setactiveEle(fileName);
       const openedFile = `${loc}${fileName}`;
+      setactiveEle(openedFile);
       const langObj = langExt[fileName.split(".").pop() as string] || {
         name: "plaintext",
         runCmd: "",
       };
-      getFileCode(openedFile);
+      getFileCode({
+        containerID,
+        fileLoc: openedFile,
+      });
       dispatch(setOpenedFile({ langObj, openedFile }));
     };
 
@@ -42,7 +45,9 @@ const FilesOpt = () => {
         if (folder[key] == "file") {
           elements.push(
             <h4
-              className={`file-txt ${activeEle === key && "bg-accent-400"}`}
+              className={`file-txt ${
+                activeEle === `${loc}${key}` && "bg-accent-400"
+              }`}
               key={key}
               onClick={() => handleFileClick(key, loc)}
             >
@@ -54,9 +59,11 @@ const FilesOpt = () => {
           elements.push(
             <details key={key} className="ml-3">
               <summary
-                className={`file-txt ${activeEle === key && "bg-accent-400"}`}
+                className={`file-txt ${
+                  activeEle === `${loc}${key}` && "bg-accent-400"
+                }`}
                 id={key}
-                onClick={() => setactiveEle(key)}
+                onClick={() => setactiveEle(`${loc}${key}`)}
               >
                 {key}
               </summary>
@@ -76,7 +83,7 @@ const FilesOpt = () => {
     if (!folderStructure) return;
     const { root } = convertToFolder(folderStructure);
     setfolderElement(createElements(root as FolderStructureType, ""));
-  }, [folderStructure, activeEle, dispatch]);
+  }, [folderStructure, activeEle, dispatch, getFileCode, containerID]);
 
   return (
     <details className="size-full px-1" open>

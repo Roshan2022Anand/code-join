@@ -3,6 +3,8 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import {
   CreateContArg,
   CreateContRes,
+  getFileCodeArg,
+  getFileCodeRes,
   outputRes,
   RunContArg,
 } from "../../utility/Types";
@@ -32,18 +34,14 @@ export const containerApi = createApi({
       query: (body) => ({
         url: "/run",
         method: "POST",
-        body: {
-          containerID: initialState.containerID,
-          cmd: body.cmd,
-          WorkingDir: body.WorkingDir,
-        },
+        body,
       }),
     }),
-    getFileCode: builder.query<{ output: string }, string>({
+    getFileCode: builder.query<getFileCodeRes, getFileCodeArg>({
       query: (body) => ({
         url: "/file",
         method: "GET",
-        params: { containerID: initialState.containerID, fileLoc: body },
+        params: body,
       }),
     }),
   }),
@@ -62,12 +60,13 @@ interface TerminalStateType {
 const initialState: TerminalStateType = {
   //test case
   containerID:
-    "c92f6d6305db3791f60ea0cd88836c75dc95868248c008b4e98fca52f0326c54",
+    "cfcd081a3958b176a5b78204df429cf70703c3fb85c5dcde9bdce8fa332a82d5",
+  // containerID: null,
   editorLang: null,
   editorCode: null,
-  terminalLoc: null, //
-  terminalOutput: null, //
-  folderStructure: null, //
+  terminalLoc: null,
+  terminalOutput: null,
+  folderStructure: null,
   openedFile: null,
   runCmd: null,
 };
@@ -124,12 +123,15 @@ const TerminalSlice = createSlice({
         if (output.length === 1) state.terminalOutput = output[0];
         else {
           state.folderStructure = output.pop() as string;
-          state.terminalLoc = output.pop()?.split("\n")[0] as string;
+          let loc = output.pop()?.split("\n")[0] as string;
+          if (!loc.includes("/root")) loc = "/root";
+          state.terminalLoc = loc 
           state.terminalOutput = output.pop() || " ";
         }
       }
     );
 
+    //handle fulfilled for get file code
     builder.addMatcher(
       containerApi.endpoints.getFileCode.matchFulfilled,
       (state, action) => {
