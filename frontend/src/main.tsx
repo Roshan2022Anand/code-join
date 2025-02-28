@@ -30,7 +30,7 @@ createRoot(document.getElementById("root")!).render(
       pauseOnHover
       theme="dark"
       transition={Bounce}
-    />
+      />
     <ContextProvider>
     <ConnectSocket />
       <Provider store={store}>

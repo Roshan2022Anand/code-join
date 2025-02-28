@@ -16,19 +16,28 @@ const useTerminalService = () => {
   //terminal socket events captured
   useEffect(() => {
     if (!socket || !terminal) return;
+    if (socket.listeners("terminal-write").length == 1) return;
 
     //to listen terminal write
-    socket.on("terminal-write", ({ key, buffer }) => {
-      if (key === "clear") terminal.clear();
-      else {
-        terminal.write(key);
-        dispatch(setBuffer(buffer));
+    socket.on(
+      "terminal-write",
+      ({ key, buffer }: { key: string; buffer: string }) => {
+        if (key === "clear") terminal.clear();
+        else {
+          terminal.write(key);
+          dispatch(setBuffer(buffer));
+        }
       }
-    });
+    );
 
     //to listen terminal output
-    socket.on("terminal-output", (data) => {
-      terminal.write("\r\n" + data + "\r\n" + "\r\n" + terminalLoc + " :> ");
+    socket.on("terminal-output", (data: string) => {
+      terminal.write("\r\n" + data);
+      dispatch(setBuffer(""));
+    });
+
+    socket.on("terminal-output-end", () => {
+      terminal.write("\r\n" + terminalLoc + " :> ");
       dispatch(setBuffer(""));
     });
   }, [socket, terminal, dispatch, terminalLoc]);
@@ -41,6 +50,7 @@ const useTerminalService = () => {
       roomID,
     });
   };
+
   //to create new line with current location
   const newLine = () => {
     setTerminalInput("\r\n" + terminalLoc + " :> ", "");

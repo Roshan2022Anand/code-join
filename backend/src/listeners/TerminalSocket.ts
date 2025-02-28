@@ -13,15 +13,13 @@ const TerminalOperations = (socket: Socket, io: Server) => {
     try {
       let container = docker.getContainer(rooms[roomID].containerID);
 
+      console.log([cmd]);
       const exec = await container.exec({
-        Cmd: [
-          "bash",
-          "-c",
-          `${cmd} && echo "_brk_" && pwd && echo "_brk_" && ls /root -R`,
-        ],
+        Cmd: ["bash", "-c", cmd],
         WorkingDir: terminalLoc,
         AttachStdout: true,
         AttachStderr: true,
+        Tty: true,
       });
 
       const stream = await exec.start({ hijack: true, stdin: true });
@@ -29,12 +27,12 @@ const TerminalOperations = (socket: Socket, io: Server) => {
       let output: string = "";
       stream
         .on("data", (data) => {
-          // console.log(data.slice(8).toString());
+          console.log(data.slice(8).toString());
           output += data.slice(8).toString();
         })
         .on("end", () => {
           // res.status(200).json({ output: output.split("_brk_\n") });
-          io.to(roomID).emit("terminal-output", output.split("_brk_\n")[0]);
+          io.to(roomID).emit("terminal-output", output);
         });
     } catch (err) {
       console.log(err);

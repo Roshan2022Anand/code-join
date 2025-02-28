@@ -75,7 +75,7 @@ const CodeEditor = () => {
       const filteredCode = code.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 
       const cmd = `echo "${filteredCode}" > ${openedFile} ` + run;
-      runTerminal(cmd,"/root");
+      runTerminal(cmd, "/root");
     }
   };
 
@@ -85,7 +85,7 @@ const CodeEditor = () => {
       if (activeSection == "code" && editorRef.current) {
         const code = editorRef.current.getValue();
         const filteredCode = code.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-        runTerminal(`echo "${filteredCode}" > ${openedFile}`,"/root");
+        runTerminal(`echo "${filteredCode}" > ${openedFile}`, "/root");
       }
     };
   }, [activeSection, openedFile, runTerminal]);

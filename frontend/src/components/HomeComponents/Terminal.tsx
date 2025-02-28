@@ -38,7 +38,7 @@ const Terminal = () => {
     terminalInstance.write("/root :> ");
 
     return () => {
-         terminalInstance.dispose();
+      terminalInstance.dispose();
     };
   }, [setTerminal]);
 
@@ -48,7 +48,7 @@ const Terminal = () => {
   }, [editorHeight, editorWidth]);
 
   const { setTerminalInput, runTerminal } = useTerminalService();
-const keyListenerAdded = useRef(false);
+  const keyListenerAdded = useRef(false);
   useEffect(() => {
     if (!terminal) return;
 
@@ -72,7 +72,6 @@ const keyListenerAdded = useRef(false);
         if (buffer == "") return;
         setTerminalInput("\b \b", buffer.slice(0, -1));
       } else if (printable) {
-        console.log(key);
         setTerminalInput(key, buffer + key);
       }
     };
@@ -82,7 +81,7 @@ const keyListenerAdded = useRef(false);
     keyListenerAdded.current = true;
     return () => {
       keyListener.dispose();
-       keyListenerAdded.current = false;
+      keyListenerAdded.current = false;
     };
   }, [buffer, runTerminal, setTerminalInput, terminal]);
 
