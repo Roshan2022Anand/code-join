@@ -7,10 +7,11 @@ import { RootState } from "../../redux/store";
 import { setActiveSection } from "../../redux/slices/EditorSlice";
 import {
   useGetContainerQuery,
-  useRunContainerMutation,
+  useLazyGetFileCodeQuery,
 } from "../../redux/slices/TerminalSlice";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import useTerminalService from "../../sockets/TerminalSocket";
 
 const CodeEditor = () => {
   const navigate = useNavigate();
@@ -19,8 +20,14 @@ const CodeEditor = () => {
   const { editorHeight, activeSection } = useSelector(
     (state: RootState) => state.editor
   );
-  const { containerID, editorLang, editorCode, openedFile, runCmd } =
-    useSelector((state: RootState) => state.terminalS);
+  const {
+    containerID,
+    editorLang,
+    editorCode,
+    openedFile,
+    runCmd,
+    folderStructure,
+  } = useSelector((state: RootState) => state.terminal);
 
   //test case
   useGetContainerQuery(containerID as string, { skip: !containerID });
@@ -54,8 +61,8 @@ const CodeEditor = () => {
     editorRef.current = editor;
   };
 
+  const { runTerminal } = useTerminalService();
   //to run the program
-  const [runPrg] = useRunContainerMutation();
   const handleRunPrg = () => {
     const code = editorRef.current?.getValue();
     if (code) {
@@ -68,7 +75,7 @@ const CodeEditor = () => {
       const filteredCode = code.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 
       const cmd = `echo "${filteredCode}" > ${openedFile} ` + run;
-      runPrg({ containerID, cmd, WorkingDir: "/root" });
+      runTerminal(cmd,"/root");
     }
   };
 
@@ -78,14 +85,20 @@ const CodeEditor = () => {
       if (activeSection == "code" && editorRef.current) {
         const code = editorRef.current.getValue();
         const filteredCode = code.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-        runPrg({
-          containerID,
-          cmd: `echo "${filteredCode}" > ${openedFile} `,
-          WorkingDir: "/root",
-        });
+        runTerminal(`echo "${filteredCode}" > ${openedFile}`,"/root");
       }
     };
-  }, [activeSection, runPrg, containerID, openedFile]);
+  }, [activeSection, openedFile, runTerminal]);
+
+  //to open a code file
+  const [getFileCode] = useLazyGetFileCodeQuery();
+  useEffect(() => {
+    if (!openedFile) return;
+    getFileCode({
+      containerID,
+      fileLoc: openedFile,
+    });
+  }, [openedFile, containerID, getFileCode, folderStructure]);
 
   return (
     <>
@@ -105,12 +118,12 @@ const CodeEditor = () => {
             <FaPlay className="icon-md" />
           </button>
         </header>
-        {editorLang && editorCode !== null ? (
+        {editorCode !== null ? (
           <>
             <p>{openedFile?.replace(/\//g, " > ")}</p>
             <Editor
               height="1000px"
-              language={editorLang}
+              language={editorLang || "plaintext"}
               theme="accentTheme"
               value={editorCode}
               onMount={handleEditorMount}

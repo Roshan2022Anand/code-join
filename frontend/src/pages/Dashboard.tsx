@@ -6,11 +6,11 @@ import { RiLoaderFill } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
-import RoomServices from "../sockets/RoomSocket";
 import { toast } from "react-toastify";
+import useRoomServices from "../sockets/RoomSocket";
 
 const Dashboard = () => {
-  const { createRoom, joinRoom } = RoomServices(); //hook to listen to room events
+  const { createRoom, joinRoom } = useRoomServices(); //hook to listen to room events
   const navigate = useNavigate();
 
   //global state from redux

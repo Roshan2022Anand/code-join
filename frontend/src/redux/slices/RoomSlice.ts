@@ -11,7 +11,9 @@ const initialState: RoomState = {
   userName: null,
   email: null,
   profile: null,
-  roomID: null,
+  // roomID: null,
+  //test
+  roomID: "123",
 };
 const RoomSlice = createSlice({
   name: "room",

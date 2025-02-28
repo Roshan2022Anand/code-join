@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import { createServer } from "http";
 import session from "express-session";
-import passport from "./configs/passport";
+import passport from "./configs/Passport";
 import { initSocket } from "./configs/Socket";
 import ContainerRoute from "./routes/Docker.routes";
 import AuthRoute from "./routes/Auth.routes";

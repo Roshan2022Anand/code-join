@@ -5,72 +5,52 @@ import { setActiveSection } from "../../redux/slices/EditorSlice";
 import { Terminal as XTerminal } from "@xterm/xterm";
 import { useEffect, useRef } from "react";
 import { FitAddon } from "@xterm/addon-fit";
-import { useRunContainerMutation } from "../../redux/slices/TerminalSlice";
 //@ts-ignore
 import "@xterm/xterm/css/xterm.css";
+import useTerminalService from "../../sockets/TerminalSocket";
+import { useMyContext } from "../../utility/MyContext";
 
 const Terminal = () => {
+  //Xterminal from context
+  const { setTerminal, terminal } = useMyContext();
+
   //global state from redux
   const dispatch = useDispatch();
   const { activeSection, editorHeight, editorWidth } = useSelector(
     (state: RootState) => state.editor
   );
-  const { terminalLoc, terminalOutput, containerID } = useSelector(
-    (state: RootState) => state.terminalS
-  );
-
-  const flag = useRef(true);
+  const { buffer } = useSelector((state: RootState) => state.terminal);
 
   // Initialize terminal
   const terminalRef = useRef<HTMLDivElement>(null);
   const fitAddon = useRef<FitAddon | null>(null);
-  const terminalInstance = useRef<XTerminal | null>(null);
   useEffect(() => {
-    if (!flag.current) return; //flag to avoid re-rendering of terminal
     if (!terminalRef.current) return;
     fitAddon.current = new FitAddon();
-    terminalInstance.current = new XTerminal({
+    const terminalInstance = new XTerminal({
       cursorBlink: true,
     });
-    const terminal = terminalInstance.current;
-    terminal.loadAddon(fitAddon.current);
-    terminal.open(terminalRef.current);
+    setTerminal(terminalInstance);
+    terminalInstance.loadAddon(fitAddon.current);
+    terminalInstance.open(terminalRef.current);
     fitAddon.current.fit();
 
-    if (terminalLoc) {
-      terminal.write(terminalLoc + " :> ");
-      flag.current = false;
-    }
+    terminalInstance.write("/root :> ");
 
     return () => {
-      if (flag.current) terminal.dispose();
+         terminalInstance.dispose();
     };
-  }, [terminalLoc]);
+  }, [setTerminal]);
 
   //fit terminal to the container when resize
   useEffect(() => {
     fitAddon.current?.fit();
   }, [editorHeight, editorWidth]);
 
-  const [run] = useRunContainerMutation();
-
-  //terminal operations
+  const { setTerminalInput, runTerminal } = useTerminalService();
+const keyListenerAdded = useRef(false);
   useEffect(() => {
-    const terminal = terminalInstance.current;
-    if (!terminal || !terminalLoc) return;
-    let commandBuffer = "";
-
-    //to create new line with current location
-    const newLine = () => {
-      commandBuffer = "";
-      terminal.write("\r\n" + terminalLoc + " :> ");
-    };
-
-    //show termjnal output
-    if (terminalOutput) {
-      if (terminalOutput !== " ") terminal.write("\r\n" + terminalOutput);
-      newLine();
-    }
+    if (!terminal) return;
 
     // Handle key press on terminal
     const handleKey = ({
@@ -86,30 +66,25 @@ const Terminal = () => {
 
       //pressed enter key
       if (keyCode === 13) {
-        if (commandBuffer === "") newLine();
-        else if (commandBuffer.split(" ")[0] === "clear") {
-          newLine();
-          terminal.clear();
-        } else
-          run({ containerID, cmd: commandBuffer, WorkingDir: terminalLoc });
+        runTerminal(buffer);
       } else if (keyCode == 8) {
         //pressed backspace key
-        if (commandBuffer == "") return;
-        commandBuffer = commandBuffer.slice(0, -1);
-        terminal.write("\b \b");
+        if (buffer == "") return;
+        setTerminalInput("\b \b", buffer.slice(0, -1));
       } else if (printable) {
-        //pressed any other key
-        commandBuffer += key;
-        terminal.write(key);
+        console.log(key);
+        setTerminalInput(key, buffer + key);
       }
     };
 
     const keyListener = terminal.onKey(handleKey);
     terminal.scrollToBottom();
+    keyListenerAdded.current = true;
     return () => {
       keyListener.dispose();
+       keyListenerAdded.current = false;
     };
-  }, [run, terminalLoc, terminalOutput, containerID]);
+  }, [buffer, runTerminal, setTerminalInput, terminal]);
 
   return (
     <article

@@ -10,13 +10,13 @@ import {
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
-const RoomServices = () => {
+const useRoomServices = () => {
   const navigate = useNavigate();
 
   //gloabl state from redux
   const dispatch = useDispatch();
   const { userName, profile } = useSelector((state: RootState) => state.room);
-  const { containerID } = useSelector((state: RootState) => state.terminalS);
+  const { containerID } = useSelector((state: RootState) => state.terminal);
 
   const [getContainer] = useLazyGetContainerQuery();
 
@@ -45,7 +45,7 @@ const RoomServices = () => {
     socket.on("error", (msg) => {
       toast.error(msg);
     });
-  }, [socket, dispatch, navigate]);
+  }, [socket, dispatch, navigate,getContainer]);
 
   //to join a room
   const joinRoom = (roomID: string) => {
@@ -73,4 +73,4 @@ const RoomServices = () => {
   return { joinRoom, createRoom };
 };
 
-export default RoomServices;
+export default useRoomServices;

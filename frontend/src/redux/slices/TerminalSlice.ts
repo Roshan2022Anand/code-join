@@ -6,7 +6,6 @@ import {
   getFileCodeArg,
   getFileCodeRes,
   outputRes,
-  RunContArg,
 } from "../../utility/Types";
 
 // API slice for container
@@ -30,13 +29,6 @@ export const containerApi = createApi({
         params: { containerID: body },
       }),
     }),
-    runContainer: builder.mutation<outputRes, RunContArg>({
-      query: (body) => ({
-        url: "/run",
-        method: "POST",
-        body,
-      }),
-    }),
     getFileCode: builder.query<getFileCodeRes, getFileCodeArg>({
       query: (body) => ({
         url: "/file",
@@ -47,25 +39,25 @@ export const containerApi = createApi({
   }),
 });
 interface TerminalStateType {
+  buffer: string;
   containerID: string | null;
   editorLang: string | null;
   editorCode: string | null;
-  terminalLoc: string | null;
-  terminalOutput: string | null;
+  terminalLoc: string;
   folderStructure: string | null;
   openedFile: string | null;
   runCmd: string | null;
 }
 
 const initialState: TerminalStateType = {
+  buffer: "",
   //test case
   containerID:
-    "cfcd081a3958b176a5b78204df429cf70703c3fb85c5dcde9bdce8fa332a82d5",
+    "591670ae1fe490dd59e32dc9ef67ccc87a629660cab8c69950a1413781dbc36d",
   // containerID: null,
   editorLang: null,
   editorCode: null,
-  terminalLoc: null,
-  terminalOutput: null,
+  terminalLoc: "/root",
   folderStructure: null,
   openedFile: null,
   runCmd: null,
@@ -75,6 +67,9 @@ const TerminalSlice = createSlice({
   name: "terminal",
   initialState,
   reducers: {
+    setBuffer: (state, action) => {
+      state.buffer = action.payload;
+    },
     setContainerID: (state, action) => {
       state.containerID = action.payload;
     },
@@ -92,8 +87,7 @@ const TerminalSlice = createSlice({
       (state, action) => {
         const { containerID, output } = action.payload;
         state.containerID = containerID;
-        state.terminalLoc = output[0].split("\r\n")[0];
-        state.folderStructure = output[1];
+        state.folderStructure = output;
       }
     );
 
@@ -101,33 +95,7 @@ const TerminalSlice = createSlice({
     builder.addMatcher(
       containerApi.endpoints.getContainer.matchFulfilled,
       (state, action) => {
-        const { output } = action.payload;
-        state.terminalLoc = output[0].split("\n")[0];
-        state.folderStructure = output[1];
-      }
-    );
-
-    //handle pending for run container
-    builder.addMatcher(
-      containerApi.endpoints.runContainer.matchPending,
-      (state) => {
-        state.terminalOutput = null;
-      }
-    );
-
-    //handle fulfilled for run container
-    builder.addMatcher(
-      containerApi.endpoints.runContainer.matchFulfilled,
-      (state, action) => {
-        const output = [...action.payload.output];
-        if (output.length === 1) state.terminalOutput = output[0];
-        else {
-          state.folderStructure = output.pop() as string;
-          let loc = output.pop()?.split("\n")[0] as string;
-          if (!loc.includes("/root")) loc = "/root";
-          state.terminalLoc = loc 
-          state.terminalOutput = output.pop() || " ";
-        }
+        state.folderStructure = action.payload.output;
       }
     );
 
@@ -135,7 +103,10 @@ const TerminalSlice = createSlice({
     builder.addMatcher(
       containerApi.endpoints.getFileCode.matchFulfilled,
       (state, action) => {
-        state.editorCode = action.payload.output;
+        const { output } = action.payload;
+        if (output.includes("No such file or directory"))
+          state.editorCode = null;
+        else state.editorCode = output;
       }
     );
   },
@@ -146,9 +117,9 @@ export const {
   useLazyGetContainerQuery,
   useLazyGetFileCodeQuery,
   useCreateContainerMutation,
-  useRunContainerMutation,
 } = containerApi;
 
-export const { setContainerID, setOpenedFile } = TerminalSlice.actions;
+export const { setContainerID, setOpenedFile, setBuffer } =
+  TerminalSlice.actions;
 
 export default TerminalSlice.reducer;

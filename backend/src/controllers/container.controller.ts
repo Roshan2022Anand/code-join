@@ -1,9 +1,7 @@
 import { Request, Response } from "express";
-import Docker from "dockerode";
 import { languages } from "../helpers/PrgLang";
 import { langKey } from "../helpers/Types";
-
-const docker = new Docker({ socketPath: "//./pipe/docker_engine" });
+import docker from "../configs/Docker";
 
 // to create a container
 export const CreateContainer = async (req: Request, res: Response) => {
@@ -21,7 +19,7 @@ export const CreateContainer = async (req: Request, res: Response) => {
       Cmd: [
         "bash",
         "-c",
-        `echo '${language.code}' > main.${language.ext} && pwd && ls /root -R && exec bash`,
+        `echo '${language.code}' > main.${language.ext} && ls /root -R && exec bash`,
       ],
     });
 
@@ -33,13 +31,11 @@ export const CreateContainer = async (req: Request, res: Response) => {
       stderr: true,
     });
 
-    let output: string[] = [];
+    let output = "";
     stream.on("data", (data) => {
-      output.push(data.toString());
-      if (output.length === 2) {
-        output[1] = output[1].split("\r").join("");
+      output += data.toString();
+      if (output !== "")
         res.status(200).json({ containerID: container.id, output });
-      }
     });
 
     await container.start();
@@ -55,54 +51,20 @@ export const GetContainer = async (req: Request, res: Response) => {
     const { containerID } = req.query;
     const container = docker.getContainer(containerID as string);
     const exec = await container.exec({
-      Cmd: ["bash", "-c", "pwd && ls /root -R"],
+      Cmd: ["bash", "-c", "ls /root -R"],
       AttachStdout: true,
       AttachStderr: true,
     });
 
     const stream = await exec.start({ hijack: true, stdin: true });
 
-    let output: string[] = [];
-
+    let output = "";
     stream
       .on("data", (data) => {
-        output.push(data.slice(8).toString());
-      })
-      .on("end", () => {
-        res.status(200).json({ output });
-      });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Server Error" });
-  }
-};
-
-//to run bash CMD in the container
-export const RunTerminalCmd = async (req: Request, res: Response) => {
-  try {
-    const { containerID, cmd, WorkingDir } = req.body;
-    let container = docker.getContainer(containerID);
-    const exec = await container.exec({
-      Cmd: [
-        "bash",
-        "-c",
-        `${cmd} && echo "_brk_" && pwd && echo "_brk_" && ls /root -R`,
-      ],
-      WorkingDir,
-      AttachStdout: true,
-      AttachStderr: true,
-    });
-
-    const stream = await exec.start({ hijack: true, stdin: true });
-
-    let output: string = "";
-    stream
-      .on("data", (data) => {
-        // console.log(data.slice(8).toString());
         output += data.slice(8).toString();
       })
       .on("end", () => {
-        res.status(200).json({ output: output.split("_brk_\n") });
+        res.status(200).json({ output });
       });
   } catch (err) {
     console.log(err);

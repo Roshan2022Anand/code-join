@@ -6,7 +6,7 @@ export const store = configureStore({
   reducer: {
     [containerApi.reducerPath]: containerApi.reducer,
     editor: editorReducer,
-    terminalS: terminalReducer,
+    terminal: terminalReducer,
     room: roomReducer,
   },
   //@ts-ignore

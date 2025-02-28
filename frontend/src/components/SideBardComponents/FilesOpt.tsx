@@ -3,20 +3,15 @@ import { convertToFolder } from "../../utility/FolderConvertor";
 import { FolderStructureType } from "../../utility/Types";
 import { RootState } from "../../redux/store";
 import { useEffect, useState } from "react";
-import {
-  setOpenedFile,
-  useLazyGetFileCodeQuery,
-} from "../../redux/slices/TerminalSlice";
+import { setOpenedFile } from "../../redux/slices/TerminalSlice";
 import { langExt } from "../../utility/languages";
 
 const FilesOpt = () => {
   //global state from redux
   const dispatch = useDispatch();
   const { folderStructure, containerID } = useSelector(
-    (state: RootState) => state.terminalS
+    (state: RootState) => state.terminal
   );
-
-  const [getFileCode] = useLazyGetFileCodeQuery();
 
   const [folderElement, setfolderElement] = useState<JSX.Element[]>([]);
   const [activeEle, setactiveEle] = useState("");
@@ -30,10 +25,6 @@ const FilesOpt = () => {
         name: "plaintext",
         runCmd: "",
       };
-      getFileCode({
-        containerID,
-        fileLoc: openedFile,
-      });
       dispatch(setOpenedFile({ langObj, openedFile }));
     };
 
@@ -83,7 +74,7 @@ const FilesOpt = () => {
     if (!folderStructure) return;
     const { root } = convertToFolder(folderStructure);
     setfolderElement(createElements(root as FolderStructureType, ""));
-  }, [folderStructure, activeEle, dispatch, getFileCode, containerID]);
+  }, [folderStructure, activeEle, dispatch, containerID]);
 
   return (
     <details className="size-full px-1" open>
