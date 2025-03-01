@@ -1,11 +1,9 @@
 import { IconType } from "react-icons";
 
 //all RTK Query types
-export type outputRes = { output: string };
-export type CreateContArg = { lang: string };
-export type CreateContRes = { containerID: string; output: string };
-export type getFileCodeArg = { containerID: string | null; fileLoc: string };
+export type getFileCodeArg = { roomID: string; fileLoc: string };
 export type getFileCodeRes = { output: string };
+
 export type LangIcon = {
   name: string;
   icon: IconType;

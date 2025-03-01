@@ -40,6 +40,12 @@ const useTerminalService = () => {
       terminal.write("\r\n" + terminalLoc + " :> ");
       dispatch(setBuffer(""));
     });
+
+    return () => {
+      socket.off("terminal-write");
+      socket.off("terminal-output");
+      socket.off("terminal-output-end");
+    };
   }, [socket, terminal, dispatch, terminalLoc]);
 
   //function to emmit terminal input

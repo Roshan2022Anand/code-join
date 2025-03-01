@@ -1,9 +1,9 @@
 import { Server } from "socket.io";
 import { Server as HttpServer } from "http";
-import RoomOperations from "../listeners/RoomSocket";
-import { StopContainer } from "../controllers/container.controller";
+import RoomOperations from "../listeners/Room.service";
 import { Room } from "../helpers/Types";
-import TerminalOperations from "../listeners/TerminalSocket";
+import TerminalOperations from "../listeners/Terminal.service";
+import { StopContainer } from "../listeners/Container.service";
 
 //global object to store rooms information
 export const rooms: Room = {
@@ -11,6 +11,7 @@ export const rooms: Room = {
   "123": {
     containerID:
       "591670ae1fe490dd59e32dc9ef67ccc87a629660cab8c69950a1413781dbc36d",
+    streams: {},
     members: {},
   },
 };
@@ -33,7 +34,7 @@ export const initSocket = (server: HttpServer) => {
     };
 
     RoomOperations(socket);
-    TerminalOperations(socket,io);
+    TerminalOperations(socket, io);
 
     //on user disconnect
     socket.on("disconnect", () => {
@@ -43,7 +44,7 @@ export const initSocket = (server: HttpServer) => {
           //test
           //if room is empty
           // if (Object.keys(rooms[room].members).length === 0) {
-          //   StopContainer(rooms[room].containerID);
+          // StopContainer(rooms[room].containerID);
           //   delete rooms[room];
           // }
           console.log("User disconnected");

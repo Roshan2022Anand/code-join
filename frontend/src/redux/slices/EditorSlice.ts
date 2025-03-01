@@ -7,6 +7,7 @@ const initialState = {
   // sideBarOpt: "fileopt",
   // test
   sideBarOpt: null,
+  folderStructure: null,
 };
 
 const editorSlice = createSlice({
@@ -25,6 +26,9 @@ const editorSlice = createSlice({
     setSideBarOpt: (state, action) => {
       state.sideBarOpt = action.payload;
     },
+    setFolderStructure: (state, action) => {
+      state.folderStructure = action.payload;
+    },
   },
 });
 
@@ -33,5 +37,6 @@ export const {
   setEditorWidth,
   setActiveSection,
   setSideBarOpt,
+  setFolderStructure,
 } = editorSlice.actions;
 export default editorSlice.reducer;

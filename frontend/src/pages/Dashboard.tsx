@@ -1,7 +1,6 @@
 import { FaToolbox } from "react-icons/fa";
 import { langIcons } from "../utility/languages";
-import { createElement, useEffect, useRef } from "react";
-import { useCreateContainerMutation } from "../redux/slices/TerminalSlice";
+import { createElement, useEffect, useRef, useState } from "react";
 import { RiLoaderFill } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -10,7 +9,6 @@ import { toast } from "react-toastify";
 import useRoomServices from "../sockets/RoomSocket";
 
 const Dashboard = () => {
-  const { createRoom, joinRoom } = useRoomServices(); //hook to listen to room events
   const navigate = useNavigate();
 
   //global state from redux
@@ -18,20 +16,14 @@ const Dashboard = () => {
     (state: RootState) => state.room
   );
 
+  const [isLoading, setisLoading] = useState(false);
+
   //to check if user is authenticated
   useEffect(() => {
     if (!email) navigate("/");
   }, [email, navigate]);
 
-  //to create a container
-  const [create, { isLoading, isSuccess }] = useCreateContainerMutation();
-  const success = useRef(true);
-  useEffect(() => {
-    if (isSuccess && success.current) {
-      createRoom();
-      success.current = false;
-    }
-  }, [isSuccess, createRoom]);
+  const { createRoom, joinRoom } = useRoomServices(setisLoading); //hook to listen to room events
 
   //to join a room
   const idInput = useRef<HTMLInputElement>(null);
@@ -70,7 +62,7 @@ const Dashboard = () => {
               <button
                 key={name}
                 className="prg-opt-btn rounded-lg bg-accent-700 p-2 size-fit"
-                onClick={() => create({ lang: name })}
+                onClick={() => createRoom(name)}
               >
                 {createElement(icon, { className: "icon-md" })}
                 <h3 className="text-accent-200">/{name}</h3>

@@ -5,10 +5,6 @@ import { FaCode, FaLaptopCode, FaPlay } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { setActiveSection } from "../../redux/slices/EditorSlice";
-import {
-  useGetContainerQuery,
-  useLazyGetFileCodeQuery,
-} from "../../redux/slices/TerminalSlice";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import useTerminalService from "../../sockets/TerminalSocket";
@@ -20,22 +16,15 @@ const CodeEditor = () => {
   const { editorHeight, activeSection } = useSelector(
     (state: RootState) => state.editor
   );
-  const {
-    containerID,
-    editorLang,
-    editorCode,
-    openedFile,
-    runCmd,
-    folderStructure,
-  } = useSelector((state: RootState) => state.terminal);
-
-  //test case
-  useGetContainerQuery(containerID as string, { skip: !containerID });
+  const { editorLang, editorCode, openedFile, runCmd } = useSelector(
+    (state: RootState) => state.terminal
+  );
+  const { roomID } = useSelector((state: RootState) => state.room);
 
   //redirect to dashboard if no containerID
   useEffect(() => {
-    if (!containerID) navigate("/dashboard");
-  }, [containerID, navigate]);
+    if (!roomID) navigate("/dashboard");
+  }, [roomID, navigate]);
 
   // Set custom theme for monaco editor
   const monaco = useMonaco();
@@ -79,7 +68,7 @@ const CodeEditor = () => {
     }
   };
 
-  //to save the code
+  //to save the code on unmount
   useEffect(() => {
     return () => {
       if (activeSection == "code" && editorRef.current) {
@@ -89,16 +78,6 @@ const CodeEditor = () => {
       }
     };
   }, [activeSection, openedFile, runTerminal]);
-
-  //to open a code file
-  const [getFileCode] = useLazyGetFileCodeQuery();
-  useEffect(() => {
-    if (!openedFile) return;
-    getFileCode({
-      containerID,
-      fileLoc: openedFile,
-    });
-  }, [openedFile, containerID, getFileCode, folderStructure]);
 
   return (
     <>

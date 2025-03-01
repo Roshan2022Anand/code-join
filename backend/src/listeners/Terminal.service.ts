@@ -23,7 +23,7 @@ const TerminalOperations = (socket: Socket, io: Server) => {
       });
 
       const stream = await exec.start({ hijack: true, stdin: true });
-
+      
       let output: string = "";
       stream
         .on("data", (data) => {

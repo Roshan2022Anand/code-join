@@ -3,29 +3,40 @@ import { convertToFolder } from "../../utility/FolderConvertor";
 import { FolderStructureType } from "../../utility/Types";
 import { RootState } from "../../redux/store";
 import { useEffect, useState } from "react";
-import { setOpenedFile } from "../../redux/slices/TerminalSlice";
+import {
+  setOpenedFile,
+  useLazyGetFileCodeQuery,
+} from "../../redux/slices/TerminalSlice";
 import { langExt } from "../../utility/languages";
 
 const FilesOpt = () => {
   //global state from redux
   const dispatch = useDispatch();
-  const { folderStructure, containerID } = useSelector(
-    (state: RootState) => state.terminal
-  );
+  const { folderStructure } = useSelector((state: RootState) => state.editor);
+  const { roomID } = useSelector((state: RootState) => state.room);
 
   const [folderElement, setfolderElement] = useState<JSX.Element[]>([]);
   const [activeEle, setactiveEle] = useState("");
+  const [getFileCode] = useLazyGetFileCodeQuery();
 
   useEffect(() => {
     //to handle the click on the file
     const handleFileClick = (fileName: string, loc: string) => {
+      if (!roomID) return;
+
       const openedFile = `${loc}${fileName}`;
       setactiveEle(openedFile);
       const langObj = langExt[fileName.split(".").pop() as string] || {
         name: "plaintext",
         runCmd: "",
       };
+
       dispatch(setOpenedFile({ langObj, openedFile }));
+
+      getFileCode({
+        roomID,
+        fileLoc: openedFile,
+      });
     };
 
     //to convert the JS object to JSX elements
@@ -74,7 +85,7 @@ const FilesOpt = () => {
     if (!folderStructure) return;
     const { root } = convertToFolder(folderStructure);
     setfolderElement(createElements(root as FolderStructureType, ""));
-  }, [folderStructure, activeEle, dispatch, containerID]);
+  }, [folderStructure, activeEle, dispatch, roomID, getFileCode]);
 
   return (
     <details className="size-full px-1" open>
