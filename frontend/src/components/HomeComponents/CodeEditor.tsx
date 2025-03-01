@@ -4,10 +4,14 @@ import { useEffect, useRef } from "react";
 import { FaCode, FaLaptopCode, FaPlay } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { setActiveSection } from "../../redux/slices/EditorSlice";
+import {
+  setActiveSection,
+  setFolderStructure,
+} from "../../redux/slices/EditorSlice";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import useTerminalService from "../../sockets/TerminalSocket";
+import { useMyContext } from "../../utility/MyContext";
 
 const CodeEditor = () => {
   const navigate = useNavigate();
@@ -64,7 +68,7 @@ const CodeEditor = () => {
       const filteredCode = code.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 
       const cmd = `echo "${filteredCode}" > ${openedFile} ` + run;
-      runTerminal(cmd, "/root");
+      runTerminal(cmd);
     }
   };
 
@@ -74,10 +78,20 @@ const CodeEditor = () => {
       if (activeSection == "code" && editorRef.current) {
         const code = editorRef.current.getValue();
         const filteredCode = code.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-        runTerminal(`echo "${filteredCode}" > ${openedFile}`, "/root");
+        runTerminal(`echo "${filteredCode}" > ${openedFile}`);
       }
     };
   }, [activeSection, openedFile, runTerminal]);
+
+  //test
+  const { socket } = useMyContext();
+  useEffect(() => {
+    // joinRoom("123");
+    socket?.on("folder-details", (data: string) => {
+      dispatch(setFolderStructure(data));
+    });
+    socket?.emit("join-room", { roomID, name: "", profile: "jjsj" });
+  }, [socket]);
 
   return (
     <>

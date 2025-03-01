@@ -8,7 +8,7 @@ const RoomOperations = (socket: Socket) => {
     if (rooms[roomID]) {
       socket.emit("error", "Room already exists");
     } else {
-      const { containerID, stream } = await createContainer(lang);
+      const { containerID, stream } = await createContainer(lang, socket);
       //if container is not created then emit error
       if (!containerID || !stream) {
         socket.emit("error", "Error while creating the environment");
@@ -32,7 +32,6 @@ const RoomOperations = (socket: Socket) => {
 
   //event to join a room
   socket.on("join-room", ({ roomID, name, profile }) => {
-    console.log(rooms[roomID],roomID);
     if (rooms[roomID]) {
       rooms[roomID].members[socket.id] = { name, profile };
       socket.join(roomID);

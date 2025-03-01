@@ -22,11 +22,9 @@ const useRoomServices = (
   //listen room events
   useEffect(() => {
     if (!socket) return;
-    console.log("room socket");
     //listen room-created event
     socket.on("room-created", (roomID) => {
       dispatch(setRoomID(roomID));
-      console.log("room created");
       navigate("/home");
     });
 
@@ -38,7 +36,6 @@ const useRoomServices = (
 
     //listen container-details event
     socket.on("folder-details", (data: string) => {
-      console.log(data);
       dispatch(setFolderStructure(data));
     });
 
@@ -56,7 +53,7 @@ const useRoomServices = (
       socket.off("error");
     };
   }, [socket, dispatch, navigate, setisLoading]);
-  
+
   //to join a room
   const joinRoom = (roomID: string) => {
     socket?.emit("join-room", { roomID, name: userName, profile });

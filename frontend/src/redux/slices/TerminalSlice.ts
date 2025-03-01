@@ -23,7 +23,6 @@ interface TerminalStateType {
   buffer: string;
   editorLang: string | null;
   editorCode: string | null;
-  terminalLoc: string;
   openedFile: string | null;
   runCmd: string | null;
 }
@@ -32,7 +31,6 @@ const initialState: TerminalStateType = {
   buffer: "",
   editorLang: null,
   editorCode: null,
-  terminalLoc: "/root",
   openedFile: null,
   runCmd: null,
 };

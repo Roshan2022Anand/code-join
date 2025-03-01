@@ -10,7 +10,7 @@ export const rooms: Room = {
   //test
   "123": {
     containerID:
-      "591670ae1fe490dd59e32dc9ef67ccc87a629660cab8c69950a1413781dbc36d",
+      "6bcbc6e985496cdda3f7d88af57030d173ea9ca38f26ef528b3e0277a6febac7",
     streams: {},
     members: {},
   },
@@ -26,12 +26,7 @@ export const initSocket = (server: HttpServer) => {
   });
 
   io.on("connection", (socket) => {
-    //test
-    socket.join("123");
-    rooms["123"].members[socket.id] = {
-      name: socket.id.slice(0, 4),
-      profile: "",
-    };
+    console.log("User connected");
 
     RoomOperations(socket);
     TerminalOperations(socket, io);

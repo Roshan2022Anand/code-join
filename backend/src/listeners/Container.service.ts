@@ -6,7 +6,8 @@ import { rooms } from "../configs/Socket";
 import { Socket } from "socket.io";
 
 export const createContainer = async (
-  lang: langKey
+  lang: langKey,
+  socket: Socket
 ): Promise<{
   containerID?: string;
   stream?: internal.Duplex;
@@ -42,6 +43,10 @@ export const createContainer = async (
     });
 
     const stream = await exec.start({ hijack: true, stdin: true });
+    stream.on("data", (data) => {
+      socket.emit("terminal-output", data.slice(8).toString());
+    });
+
     return { containerID: container.id, stream };
   } catch (err) {
     return {};
@@ -57,10 +62,23 @@ export const sendContainerDetails = async (socket: Socket, roomID: string) => {
     AttachStderr: true,
   });
   const stream = await exec.start({ hijack: true });
-
   stream.on("data", (data) => {
-    console.log(data.slice(8).toString());
     socket.emit("folder-details", data.slice(8).toString());
+  });
+
+  //test
+  const exec1 = await container.exec({
+    Cmd: ["bash"],
+    AttachStdout: true,
+    AttachStderr: true,
+    AttachStdin: true,
+    Tty: true,
+  });
+  const stream1 = await exec1.start({ hijack: true, stdin: true });
+  rooms[roomID].streams["terminal1"] = stream1;
+
+  stream1.on("data", (data) => {
+    socket.emit("terminal-output", data.slice(8).toString());
   });
 };
 
@@ -70,7 +88,6 @@ export const StopContainer = async (containerID: string) => {
     let container = docker.getContainer(containerID);
     await container.stop();
     await container.remove();
-    console.log("Container Stopped");
   } catch (err) {
     console.log(err);
   }

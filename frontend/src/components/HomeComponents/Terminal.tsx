@@ -35,8 +35,6 @@ const Terminal = () => {
     terminalInstance.open(terminalRef.current);
     fitAddon.current.fit();
 
-    terminalInstance.write("/root :> ");
-
     return () => {
       terminalInstance.dispose();
     };
