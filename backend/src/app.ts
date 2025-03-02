@@ -7,6 +7,7 @@ import passport from "./configs/Passport";
 import { initSocket } from "./configs/Socket";
 import ContainerRoute from "./routes/Docker.routes";
 import AuthRoute from "./routes/Auth.routes";
+import { Server } from "socket.io";
 
 const app = express();
 const server = createServer(app);

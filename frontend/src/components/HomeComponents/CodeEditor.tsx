@@ -54,21 +54,20 @@ const CodeEditor = () => {
     editorRef.current = editor;
   };
 
-  const { runTerminal } = useTerminalService();
+  const { runTerminal, runStream } = useTerminalService();
   //to run the program
   const handleRunPrg = () => {
     const code = editorRef.current?.getValue();
     if (code) {
-      //setting up the run command
-      let run = "";
-      if (runCmd == "") toast.error("Language not supported");
-      else run = `&& ${runCmd} ${openedFile}`;
-
       //escaping special characters
       const filteredCode = code.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 
-      const cmd = `echo "${filteredCode}" > ${openedFile} ` + run;
-      runTerminal(cmd);
+      const cmd = `echo "${filteredCode}" > ${openedFile}`;
+      runStream(cmd, false);
+
+      //setting up the run command
+      if (runCmd == "") toast.error("Language not supported");
+      else runTerminal(`${runCmd} ${openedFile}`);
     }
   };
 
@@ -78,10 +77,11 @@ const CodeEditor = () => {
       if (activeSection == "code" && editorRef.current) {
         const code = editorRef.current.getValue();
         const filteredCode = code.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-        runTerminal(`echo "${filteredCode}" > ${openedFile}`);
+
+        runStream(`echo "${filteredCode}" > ${openedFile}`, false);
       }
     };
-  }, [activeSection, openedFile, runTerminal]);
+  }, [activeSection, openedFile, runStream]);
 
   //test
   const { socket } = useMyContext();

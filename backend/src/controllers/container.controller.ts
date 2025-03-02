@@ -5,7 +5,7 @@ import { rooms } from "../configs/Socket";
 export const GetFileCode = async (req: Request, res: Response) => {
   try {
     const { roomID, fileLoc } = req.query;
-    const containerID = rooms[roomID as string].containerID;
+    const containerID = rooms.get(roomID as string)!.containerID;
     const container = docker.getContainer(containerID);
     const exec = await container.exec({
       Cmd: ["cat", fileLoc as string],

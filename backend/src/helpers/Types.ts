@@ -9,12 +9,11 @@ export type LangInfoType = {
 };
 
 //type for rooms object
-export type Room = {
-  [roomID: string]: {
+export type Room = Map<
+  string,
+  {
     containerID: string;
-    streams: {
-      [streamID: string]: internal.Duplex;
-    };
-    members: { [socketID: string]: { name: string; profile: string } };
-  };
-};
+    streams: internal.Duplex[];
+    members: Map<string, { name: string; profile: string }>;
+  }
+>;

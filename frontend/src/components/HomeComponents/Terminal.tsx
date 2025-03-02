@@ -58,8 +58,8 @@ const Terminal = () => {
       key: string;
       domEvent: KeyboardEvent;
     }) => {
-      const printable =
-        !domEvent.altKey && !domEvent.ctrlKey && !domEvent.metaKey;
+      // const printable =
+      //   !domEvent.altKey && !domEvent.ctrlKey && !domEvent.metaKey;
       const keyCode = domEvent.keyCode;
 
       //pressed enter key
@@ -69,7 +69,7 @@ const Terminal = () => {
         //pressed backspace key
         if (buffer == "") return;
         setTerminalInput("\b \b", buffer.slice(0, -1));
-      } else if (printable) {
+      } else  {
         setTerminalInput(key, buffer + key);
       }
     };

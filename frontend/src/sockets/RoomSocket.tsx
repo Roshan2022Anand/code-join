@@ -29,7 +29,7 @@ const useRoomServices = (
     });
 
     //listen room-joined event
-    socket.on("room-joined", ({ roomID }) => {
+    socket.on("room-joined", (roomID) => {
       dispatch(setRoomID(roomID));
       navigate("/home");
     });
@@ -61,16 +61,7 @@ const useRoomServices = (
 
   //to create a room
   const createRoom = (lang: string) => {
-    //generate a room id using crypto
-    const array = new Uint8Array(16);
-    window.crypto.getRandomValues(array);
-    const id = Array.from(array, (dec) => dec.toString(16).padStart(2, "0"))
-      .join("")
-      .slice(0, 16);
-
-    //emit create-room event
     socket?.emit("create-room", {
-      roomID: id,
       name: userName,
       profile,
       lang,

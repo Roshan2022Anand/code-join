@@ -55,7 +55,15 @@ const useTerminalService = () => {
     });
   };
 
-  return { setTerminalInput, runTerminal };
+  const runStream = (cmd: string, send: boolean) => {
+    socket?.emit("stream-run", {
+      cmd,
+      roomID,
+      send,
+    });
+  };
+
+  return { setTerminalInput, runTerminal, runStream };
 };
 
 export default useTerminalService;

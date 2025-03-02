@@ -1,32 +1,23 @@
 import { Server, Socket } from "socket.io";
-import { rooms } from "../configs/Socket";
+import { getIO, rooms } from "../configs/Socket";
+import { runNonInteractiveCmd } from "./Container.service";
 
-const TerminalOperations = (socket: Socket, io: Server) => {
+const TerminalOperations = (socket: Socket) => {
+  const io = getIO();
   //to listen terminal input
   socket.on("terminal-input", ({ key, buffer, roomID }) => {
     io.to(roomID).emit("terminal-write", { key, buffer });
   });
 
   //to listen terminal run
-  socket.on("terminal-run", async ({ cmd, roomID }) => {
-    try {
-      const stream = rooms[roomID].streams["terminal1"];
+  socket.on("terminal-run", ({ cmd, roomID }) => {
+    const stream = rooms.get(roomID)!.streams[0];
+    console.log("cmd", cmd);
+    stream.write(cmd);
+  });
 
-      stream.write(cmd);
-      stream.removeAllListeners("data");
-      stream.on("data", (data) => {
-        const output: string = data.slice(8).toString();
-
-        if (!output.includes(cmd.trim())) {
-          io.to(roomID).emit(
-            "terminal-output",
-            "\r\n" + data.slice(8).toString()
-          );
-        }
-      });
-    } catch (err) {
-      console.log(err);
-    }
+  socket.on("stream-run", ({cmd,roomID,send}) => {
+    runNonInteractiveCmd(socket, roomID, send, cmd);
   });
 };
 
