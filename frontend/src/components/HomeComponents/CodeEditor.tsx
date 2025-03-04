@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import useTerminalService from "../../sockets/TerminalSocket";
 import { useMyContext } from "../../utility/MyContext";
+import useEditorService from "../../sockets/EditorSocket";
 
 const CodeEditor = () => {
   const navigate = useNavigate();
@@ -54,7 +55,10 @@ const CodeEditor = () => {
     editorRef.current = editor;
   };
 
-  const { runTerminal, runStream } = useTerminalService();
+  useEditorService(editorRef.current); //hook for editor operations
+
+  const { runTerminal, runStream } = useTerminalService(); //hook for terminal operations
+
   //to run the program
   const handleRunPrg = () => {
     const code = editorRef.current?.getValue();

@@ -12,7 +12,6 @@ const TerminalOperations = (socket: Socket) => {
   //to listen terminal run
   socket.on("terminal-run", ({ cmd, roomID }) => {
     const stream = rooms.get(roomID)!.streams[0];
-    console.log("cmd", cmd);
     stream.write(cmd);
   });
 
