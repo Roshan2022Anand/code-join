@@ -10,9 +10,8 @@ import { setEditorHeight, setEditorWidth } from "../redux/slices/EditorSlice";
 const HomePg = () => {
   //global state from redux
   const dispatch = useDispatch();
-  const { editorWidth, sideBarOpt } = useSelector(
-    (state: RootState) => state.editor
-  );
+  const { editorWidth } = useSelector((state: RootState) => state.editor);
+  const { sideBarOpt } = useSelector((state: RootState) => state.file);
 
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 

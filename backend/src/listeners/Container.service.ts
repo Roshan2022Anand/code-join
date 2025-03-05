@@ -78,17 +78,8 @@ export const createNewStream = async (socket: Socket, roomID: string) => {
   });
 
   const stream = await exec1.start({ hijack: true, stdin: true });
-  let ans: string[] = ["flag"];
-
-  //to emit the output to the terminal
-  stream.on("data", (data) => {
-    const output: string = data.slice(8).toString();
-    ans.push(output);
-    // console.log(ans);
-    if (ans.length > 1)
-      io.to(roomID).emit("terminal-output", "\r\n" + data.slice(8).toString());
-
-    if (output.includes("root@")) ans = [];
+  stream.on("data", (data) => {    
+    io.to(roomID).emit("terminal-output",  data.slice(8).toString());
   });
   rooms.get(roomID)!.streams.push(stream);
 };

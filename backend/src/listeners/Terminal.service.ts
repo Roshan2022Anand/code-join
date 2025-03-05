@@ -3,19 +3,25 @@ import { getIO, rooms } from "../configs/Socket";
 import { runNonInteractiveCmd } from "./Container.service";
 
 const TerminalOperations = (socket: Socket) => {
-  const io = getIO();
-  //to listen terminal input
-  socket.on("terminal-input", ({ key, buffer, roomID }) => {
-    io.to(roomID).emit("terminal-write", { key, buffer });
-  });
+  let streamCmd = "";
+  socket.on("terminal-input", ({ key, roomID }) => {
+    //capture backspace
+    if (key === "\u007F") {
+      streamCmd = streamCmd.slice(0, -1);
+    } else streamCmd += key;
 
-  //to listen terminal run
-  socket.on("terminal-run", ({ cmd, roomID }) => {
     const stream = rooms.get(roomID)!.streams[0];
-    stream.write(cmd);
+    stream.write(key);
+
+    const fileCmdRegex = /\b(?:touch|mkdir|rmdir|rm|cp|mv)\b/i;
+    if (key == "\r") {
+      if (fileCmdRegex.test(streamCmd))
+        runNonInteractiveCmd(socket, roomID, true);
+      streamCmd = "";
+    }
   });
 
-  socket.on("stream-run", ({cmd,roomID,send}) => {
+  socket.on("stream-run", ({ cmd, roomID, send }) => {
     runNonInteractiveCmd(socket, roomID, send, cmd);
   });
 };

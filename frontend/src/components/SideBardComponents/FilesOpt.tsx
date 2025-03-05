@@ -6,18 +6,45 @@ import { useEffect, useState } from "react";
 import {
   setOpenedFile,
   useLazyGetFileCodeQuery,
-} from "../../redux/slices/TerminalSlice";
+} from "../../redux/slices/FileSlice";
 import { langExt } from "../../utility/languages";
 
 const FilesOpt = () => {
   //global state from redux
   const dispatch = useDispatch();
-  const { folderStructure } = useSelector((state: RootState) => state.editor);
+  const { folderStructure, openedFile } = useSelector(
+    (state: RootState) => state.file
+  );
   const { roomID } = useSelector((state: RootState) => state.room);
 
   const [folderElement, setfolderElement] = useState<JSX.Element[]>([]);
   const [activeEle, setactiveEle] = useState("");
   const [getFileCode] = useLazyGetFileCodeQuery();
+
+  //check if  openedFile exists in the folderStructure
+  useEffect(() => {
+    if (!openedFile || !folderStructure) return;
+
+    const { root } = convertToFolder(folderStructure);
+    const target = openedFile.split("/");
+
+    const checkExistence = (i: number, parent: FolderStructureType) => {
+      if (!parent[target[i]]) {
+        dispatch(
+          setOpenedFile({
+            langObj: { name: "", runCmd: "" },
+            openedFile: null,
+            code: null,
+          })
+        );
+        return;
+      } else if (parent[target[i]] == "file") return;
+
+      checkExistence(i + 1, parent[target[i]] as FolderStructureType);
+    };
+
+    checkExistence(0, root as FolderStructureType);
+  }, [openedFile, folderStructure, dispatch]);
 
   useEffect(() => {
     //to handle the click on the file
@@ -31,7 +58,7 @@ const FilesOpt = () => {
         runCmd: "",
       };
 
-      dispatch(setOpenedFile({ langObj, openedFile }));
+      dispatch(setOpenedFile({ langObj, openedFile, code: null }));
 
       getFileCode({
         roomID,
@@ -85,7 +112,7 @@ const FilesOpt = () => {
     if (!folderStructure) return;
     const { root } = convertToFolder(folderStructure);
     setfolderElement(createElements(root as FolderStructureType, ""));
-  }, [folderStructure, activeEle, dispatch, roomID, getFileCode]);
+  }, [folderStructure, activeEle, dispatch, roomID, getFileCode, openedFile]);
 
   return (
     <details className="size-full px-1" open>

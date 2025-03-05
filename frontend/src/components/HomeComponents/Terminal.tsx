@@ -9,6 +9,7 @@ import { FitAddon } from "@xterm/addon-fit";
 import "@xterm/xterm/css/xterm.css";
 import useTerminalService from "../../sockets/TerminalSocket";
 import { useMyContext } from "../../utility/MyContext";
+import { FaPlus } from "react-icons/fa";
 
 const Terminal = () => {
   //Xterminal from context
@@ -19,7 +20,6 @@ const Terminal = () => {
   const { activeSection, editorHeight, editorWidth } = useSelector(
     (state: RootState) => state.editor
   );
-  const { buffer } = useSelector((state: RootState) => state.terminal);
 
   // Initialize terminal
   const terminalRef = useRef<HTMLDivElement>(null);
@@ -45,43 +45,27 @@ const Terminal = () => {
     fitAddon.current?.fit();
   }, [editorHeight, editorWidth]);
 
-  const { setTerminalInput, runTerminal } = useTerminalService();
-  const keyListenerAdded = useRef(false);
+  const { setTerminalInput } = useTerminalService();
   useEffect(() => {
     if (!terminal) return;
 
     // Handle key press on terminal
     const handleKey = ({
       key,
-      domEvent,
-    }: {
+    }: // domEvent,
+    {
       key: string;
       domEvent: KeyboardEvent;
     }) => {
-      // const printable =
-      //   !domEvent.altKey && !domEvent.ctrlKey && !domEvent.metaKey;
-      const keyCode = domEvent.keyCode;
-
-      //pressed enter key
-      if (keyCode === 13) {
-        runTerminal(buffer);
-      } else if (keyCode == 8) {
-        //pressed backspace key
-        if (buffer == "") return;
-        setTerminalInput("\b \b", buffer.slice(0, -1));
-      } else  {
-        setTerminalInput(key, buffer + key);
-      }
+      setTerminalInput(key);
     };
 
     const keyListener = terminal.onKey(handleKey);
     terminal.scrollToBottom();
-    keyListenerAdded.current = true;
     return () => {
       keyListener.dispose();
-      keyListenerAdded.current = false;
     };
-  }, [buffer, runTerminal, setTerminalInput, terminal]);
+  }, [setTerminalInput, terminal]);
 
   return (
     <article
@@ -90,11 +74,17 @@ const Terminal = () => {
       }`}
       onClick={() => dispatch(setActiveSection("terminal"))}
     >
-      <header className="bg-soft py-1 px-3 flex items-center gap-3">
+      <header className="bg-soft py-2 px-3 flex items-center gap-3">
         <IoTerminal className="icon-md" />
         <h3>Terminal</h3>
+        <button className="ml-auto">
+          <FaPlus className="icon-md" />
+        </button>
       </header>
-      <div ref={terminalRef} className="flex-1 size-full"></div>
+      <section className="flex-1 flex">
+        <div ref={terminalRef} className="flex-1 size-full"></div>
+        <div className="w-[100px] border-2 bg-black"></div>
+      </section>
     </article>
   );
 };

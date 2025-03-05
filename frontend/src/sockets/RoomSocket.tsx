@@ -5,7 +5,7 @@ import { useMyContext } from "../utility/MyContext";
 import { setRoomID } from "../redux/slices/RoomSlice";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { setFolderStructure } from "../redux/slices/EditorSlice";
+import { setFolderStructure } from "../redux/slices/FileSlice";
 
 const useRoomServices = (
   setisLoading: React.Dispatch<React.SetStateAction<boolean>>

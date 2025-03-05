@@ -4,15 +4,13 @@ import { useEffect, useRef } from "react";
 import { FaCode, FaLaptopCode, FaPlay } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import {
-  setActiveSection,
-  setFolderStructure,
-} from "../../redux/slices/EditorSlice";
+import { setActiveSection } from "../../redux/slices/EditorSlice";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import useTerminalService from "../../sockets/TerminalSocket";
 import { useMyContext } from "../../utility/MyContext";
 import useEditorService from "../../sockets/EditorSocket";
+import { setFolderStructure } from "../../redux/slices/FileSlice";
 
 const CodeEditor = () => {
   const navigate = useNavigate();
@@ -22,11 +20,11 @@ const CodeEditor = () => {
     (state: RootState) => state.editor
   );
   const { editorLang, editorCode, openedFile, runCmd } = useSelector(
-    (state: RootState) => state.terminal
+    (state: RootState) => state.file
   );
   const { roomID } = useSelector((state: RootState) => state.room);
 
-  //redirect to dashboard if no containerID
+  //redirect to dashboard if no roomID
   useEffect(() => {
     if (!roomID) navigate("/dashboard");
   }, [roomID, navigate]);
@@ -57,7 +55,7 @@ const CodeEditor = () => {
 
   useEditorService(editorRef.current); //hook for editor operations
 
-  const { runTerminal, runStream } = useTerminalService(); //hook for terminal operations
+  const { runStream, setTerminalInput } = useTerminalService(); //hook for terminal operations
 
   //to run the program
   const handleRunPrg = () => {
@@ -71,7 +69,7 @@ const CodeEditor = () => {
 
       //setting up the run command
       if (runCmd == "") toast.error("Language not supported");
-      else runTerminal(`${runCmd} ${openedFile}`);
+      else setTerminalInput(`${runCmd} ${openedFile}\n`);
     }
   };
 

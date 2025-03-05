@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { getFileCodeArg, getFileCodeRes } from "../../utility/Types";
 
 // API slice for container
-export const containerApi = createApi({
+export const fileApi = createApi({
   reducerPath: "containerApi",
   baseQuery: fetchBaseQuery({
     baseUrl: `${import.meta.env.VITE_BACKEND_URL}/container`,
@@ -20,52 +20,57 @@ export const containerApi = createApi({
 });
 
 interface TerminalStateType {
-  buffer: string;
   editorLang: string | null;
   editorCode: string | null;
   openedFile: string | null;
   runCmd: string | null;
+  sideBarOpt: string | null;
+  folderStructure: string | null;
 }
 
 const initialState: TerminalStateType = {
-  buffer: "",
   editorLang: null,
   editorCode: null,
   openedFile: null,
   runCmd: null,
+  // sideBarOpt: "fileopt",
+  // test
+  sideBarOpt: null,
+  folderStructure: null,
 };
 
-const TerminalSlice = createSlice({
+const FileSlice = createSlice({
   name: "terminal",
   initialState,
   reducers: {
-    setBuffer: (state, action) => {
-      state.buffer = action.payload;
-    },
     setOpenedFile: (state, action) => {
-      const { langObj, openedFile } = action.payload;
+      const { langObj, openedFile, code } = action.payload;
       state.editorLang = langObj.name;
       state.runCmd = langObj.runCmd;
       state.openedFile = openedFile;
+      state.editorCode = code;
+    },
+    setSideBarOpt: (state, action) => {
+      state.sideBarOpt = action.payload;
+    },
+    setFolderStructure: (state, action) => {
+      state.folderStructure = action.payload;
     },
   },
   extraReducers(builder) {
     //handle fulfilled for get file code
     builder.addMatcher(
-      containerApi.endpoints.getFileCode.matchFulfilled,
+      fileApi.endpoints.getFileCode.matchFulfilled,
       (state, action) => {
-        const { output } = action.payload;
-        if (output.includes("No such file or directory"))
-          state.editorCode = null;
-        else state.editorCode = output;
+        state.editorCode = action.payload.output;
       }
     );
   },
 });
 
-export const { useLazyGetFileCodeQuery } = containerApi;
+export const { useLazyGetFileCodeQuery } = fileApi;
 
-export const { setOpenedFile, setBuffer } =
-  TerminalSlice.actions;
+export const { setOpenedFile, setSideBarOpt, setFolderStructure } =
+  FileSlice.actions;
 
-export default TerminalSlice.reducer;
+export default FileSlice.reducer;

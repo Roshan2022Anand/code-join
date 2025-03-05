@@ -3,11 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   editorWidth: 2000,
   editorHeight: 900,
-  activeSection: null,
-  // sideBarOpt: "fileopt",
-  // test
-  sideBarOpt: null,
-  folderStructure: null,
+  activeSection: null
 };
 
 const editorSlice = createSlice({
@@ -22,13 +18,7 @@ const editorSlice = createSlice({
     },
     setActiveSection: (state, action) => {
       state.activeSection = action.payload;
-    },
-    setSideBarOpt: (state, action) => {
-      state.sideBarOpt = action.payload;
-    },
-    setFolderStructure: (state, action) => {
-      state.folderStructure = action.payload;
-    },
+    }
   },
 });
 
@@ -36,7 +26,5 @@ export const {
   setEditorHeight,
   setEditorWidth,
   setActiveSection,
-  setSideBarOpt,
-  setFolderStructure,
 } = editorSlice.actions;
 export default editorSlice.reducer;

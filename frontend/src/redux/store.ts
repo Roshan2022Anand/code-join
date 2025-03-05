@@ -1,17 +1,17 @@
 import { configureStore } from "@reduxjs/toolkit";
 import editorReducer from "./slices/EditorSlice";
-import terminalReducer, { containerApi } from "./slices/TerminalSlice";
+import fileReducer, { fileApi } from "./slices/FileSlice";
 import roomReducer from "./slices/RoomSlice";
 export const store = configureStore({
   reducer: {
-    [containerApi.reducerPath]: containerApi.reducer,
+    [fileApi.reducerPath]: fileApi.reducer,
     editor: editorReducer,
-    terminal: terminalReducer,
     room: roomReducer,
+    file: fileReducer,
   },
   //@ts-ignore
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(containerApi.middleware),
+    getDefaultMiddleware().concat(fileApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

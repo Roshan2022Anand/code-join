@@ -6,16 +6,18 @@ import { RootState } from "../../redux/store";
 import {
   setActiveSection,
   setEditorWidth,
-  setSideBarOpt,
 } from "../../redux/slices/EditorSlice";
 import RoomOpt from "../SideBardComponents/RoomOpt";
 import FilesOpt from "../SideBardComponents/FilesOpt";
+import { setSideBarOpt } from "../../redux/slices/FileSlice";
 
 const SideBar = () => {
   const dispatch = useDispatch();
-  const { activeSection, editorWidth, sideBarOpt } = useSelector(
+  const { activeSection, editorWidth } = useSelector(
     (state: RootState) => state.editor
   );
+
+  const { sideBarOpt } = useSelector((state: RootState) => state.file);
 
   const [sideW, setsideW] = useState(0);
   const sidebarRef = useRef<HTMLDivElement>(null);
