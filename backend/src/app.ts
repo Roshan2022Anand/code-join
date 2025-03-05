@@ -3,11 +3,9 @@ import dotenv from "dotenv";
 import cors from "cors";
 import { createServer } from "http";
 import session from "express-session";
-import passport from "./configs/Passport";
 import { initSocket } from "./configs/Socket";
-import ContainerRoute from "./routes/Docker.routes";
 import AuthRoute from "./routes/Auth.routes";
-import { Server } from "socket.io";
+import passport from "./configs/passport";
 
 const app = express();
 const server = createServer(app);
@@ -46,8 +44,6 @@ app.get("/", (req, res) => {
   res.status(200).json({ message: "Server is running" });
 });
 
-//container routes
-app.use("/container", ContainerRoute);
 app.use("/auth", AuthRoute);
 
 //listening to the server

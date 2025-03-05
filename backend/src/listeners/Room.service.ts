@@ -29,7 +29,7 @@ const RoomOperations = (socket: Socket) => {
 
       runNonInteractiveCmd(socket, roomID, true);
 
-      rooms.get(roomID)!.members.set(socket.id, { name, profile });
+      rooms.get(roomID)!.members.set(socket.id, { name, profile,currFile:null });
       socket.join(roomID);
       socket.emit("room-created", roomID);
     }
@@ -38,7 +38,7 @@ const RoomOperations = (socket: Socket) => {
   //event to join a room
   socket.on("join-room", ({ roomID, name, profile }) => {
     if (rooms.has(roomID)) {
-      rooms.get(roomID)!.members.set(socket.id, { name, profile });
+      rooms.get(roomID)!.members.set(socket.id, { name, profile,currFile:null });
       socket.join(roomID);
       socket.emit("room-joined", roomID);
 

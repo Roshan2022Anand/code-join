@@ -14,6 +14,6 @@ export type Room = Map<
   {
     containerID: string;
     streams: internal.Duplex[];
-    members: Map<string, { name: string; profile: string }>;
+    members: Map<string, { name: string; profile: string; currFile: string|null }>;
   }
 >;

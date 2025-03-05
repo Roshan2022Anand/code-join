@@ -1,24 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { getFileCodeArg, getFileCodeRes } from "../../utility/Types";
-
-// API slice for container
-export const fileApi = createApi({
-  reducerPath: "containerApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: `${import.meta.env.VITE_BACKEND_URL}/container`,
-  }),
-  endpoints: (builder) => ({
-    getFileCode: builder.query<getFileCodeRes, getFileCodeArg>({
-      query: (body) => ({
-        url: "/file",
-        method: "GET",
-        params: body,
-      }),
-    }),
-  }),
-});
-
 interface TerminalStateType {
   editorLang: string | null;
   editorCode: string | null;
@@ -44,11 +24,10 @@ const FileSlice = createSlice({
   initialState,
   reducers: {
     setOpenedFile: (state, action) => {
-      const { langObj, openedFile, code } = action.payload;
+      const { langObj, openedFile } = action.payload;
       state.editorLang = langObj.name;
       state.runCmd = langObj.runCmd;
       state.openedFile = openedFile;
-      state.editorCode = code;
     },
     setSideBarOpt: (state, action) => {
       state.sideBarOpt = action.payload;
@@ -56,21 +35,13 @@ const FileSlice = createSlice({
     setFolderStructure: (state, action) => {
       state.folderStructure = action.payload;
     },
-  },
-  extraReducers(builder) {
-    //handle fulfilled for get file code
-    builder.addMatcher(
-      fileApi.endpoints.getFileCode.matchFulfilled,
-      (state, action) => {
-        state.editorCode = action.payload.output;
-      }
-    );
+    setEditorCode: (state, action) => {
+      state.editorCode = action.payload;
+    },
   },
 });
 
-export const { useLazyGetFileCodeQuery } = fileApi;
-
-export const { setOpenedFile, setSideBarOpt, setFolderStructure } =
+export const { setOpenedFile,setEditorCode, setSideBarOpt, setFolderStructure } =
   FileSlice.actions;
 
 export default FileSlice.reducer;

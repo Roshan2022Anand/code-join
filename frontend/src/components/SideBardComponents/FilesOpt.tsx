@@ -3,48 +3,17 @@ import { convertToFolder } from "../../utility/FolderConvertor";
 import { FolderStructureType } from "../../utility/Types";
 import { RootState } from "../../redux/store";
 import { useEffect, useState } from "react";
-import {
-  setOpenedFile,
-  useLazyGetFileCodeQuery,
-} from "../../redux/slices/FileSlice";
+import { setOpenedFile } from "../../redux/slices/FileSlice";
 import { langExt } from "../../utility/languages";
 
 const FilesOpt = () => {
   //global state from redux
   const dispatch = useDispatch();
-  const { folderStructure, openedFile } = useSelector(
-    (state: RootState) => state.file
-  );
+  const { folderStructure } = useSelector((state: RootState) => state.file);
   const { roomID } = useSelector((state: RootState) => state.room);
 
   const [folderElement, setfolderElement] = useState<JSX.Element[]>([]);
   const [activeEle, setactiveEle] = useState("");
-  const [getFileCode] = useLazyGetFileCodeQuery();
-
-  //check if  openedFile exists in the folderStructure
-  useEffect(() => {
-    if (!openedFile || !folderStructure) return;
-
-    const { root } = convertToFolder(folderStructure);
-    const target = openedFile.split("/");
-
-    const checkExistence = (i: number, parent: FolderStructureType) => {
-      if (!parent[target[i]]) {
-        dispatch(
-          setOpenedFile({
-            langObj: { name: "", runCmd: "" },
-            openedFile: null,
-            code: null,
-          })
-        );
-        return;
-      } else if (parent[target[i]] == "file") return;
-
-      checkExistence(i + 1, parent[target[i]] as FolderStructureType);
-    };
-
-    checkExistence(0, root as FolderStructureType);
-  }, [openedFile, folderStructure, dispatch]);
 
   useEffect(() => {
     //to handle the click on the file
@@ -58,12 +27,7 @@ const FilesOpt = () => {
         runCmd: "",
       };
 
-      dispatch(setOpenedFile({ langObj, openedFile, code: null }));
-
-      getFileCode({
-        roomID,
-        fileLoc: openedFile,
-      });
+      dispatch(setOpenedFile({ langObj, openedFile }));
     };
 
     //to convert the JS object to JSX elements
@@ -112,7 +76,7 @@ const FilesOpt = () => {
     if (!folderStructure) return;
     const { root } = convertToFolder(folderStructure);
     setfolderElement(createElements(root as FolderStructureType, ""));
-  }, [folderStructure, activeEle, dispatch, roomID, getFileCode, openedFile]);
+  }, [folderStructure, activeEle, dispatch, roomID]);
 
   return (
     <details className="size-full px-1" open>

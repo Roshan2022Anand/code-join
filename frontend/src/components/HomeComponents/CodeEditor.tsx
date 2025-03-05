@@ -1,6 +1,6 @@
 import { Editor, OnMount, useMonaco } from "@monaco-editor/react";
 import type * as Monaco from "monaco-editor";
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { FaCode, FaLaptopCode, FaPlay } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
@@ -19,7 +19,7 @@ const CodeEditor = () => {
   const { editorHeight, activeSection } = useSelector(
     (state: RootState) => state.editor
   );
-  const { editorLang, editorCode, openedFile, runCmd } = useSelector(
+  const { editorLang, openedFile, runCmd, editorCode } = useSelector(
     (state: RootState) => state.file
   );
   const { roomID } = useSelector((state: RootState) => state.room);
@@ -48,18 +48,19 @@ const CodeEditor = () => {
   }, [monaco]);
 
   //getting the monaco editor values
-  const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
+  const [editor, seteditor] =
+    useState<Monaco.editor.IStandaloneCodeEditor | null>(null);
   const handleEditorMount: OnMount = (editor) => {
-    editorRef.current = editor;
+    seteditor(editor);
   };
 
-  useEditorService(editorRef.current); //hook for editor operations
+  useEditorService(editor); //hook for editor operations
 
   const { runStream, setTerminalInput } = useTerminalService(); //hook for terminal operations
 
   //to run the program
   const handleRunPrg = () => {
-    const code = editorRef.current?.getValue();
+    const code = editor?.getValue();
     if (code) {
       //escaping special characters
       const filteredCode = code.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
@@ -76,14 +77,14 @@ const CodeEditor = () => {
   //to save the code on unmount
   useEffect(() => {
     return () => {
-      if (activeSection == "code" && editorRef.current) {
-        const code = editorRef.current.getValue();
+      if (activeSection == "code" && editor !== null) {
+        const code = editor.getValue();
         const filteredCode = code.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 
         runStream(`echo "${filteredCode}" > ${openedFile}`, false);
       }
     };
-  }, [activeSection, openedFile, runStream]);
+  }, [activeSection, openedFile, runStream,editor]);
 
   //test
   const { socket } = useMyContext();

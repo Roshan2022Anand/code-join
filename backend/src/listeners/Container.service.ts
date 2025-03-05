@@ -33,7 +33,6 @@ export const runNonInteractiveCmd = async (
   cmd?: string
 ) => {
   const io = getIO();
-  console.log("roomID", roomID);
   const container = docker.getContainer(rooms.get(roomID)!.containerID);
 
   //to send folder details
@@ -78,10 +77,40 @@ export const createNewStream = async (socket: Socket, roomID: string) => {
   });
 
   const stream = await exec1.start({ hijack: true, stdin: true });
-  stream.on("data", (data) => {    
-    io.to(roomID).emit("terminal-output",  data.slice(8).toString());
+  stream.on("data", (data) => {
+    io.to(roomID).emit("terminal-output", data.slice(8).toString());
   });
   rooms.get(roomID)!.streams.push(stream);
+};
+
+export const GetFileCode = async (
+  roomID: string,
+  fileLoc: string,
+  socket: Socket
+) => {
+  try {
+    const io = getIO();
+    const containerID = rooms.get(roomID as string)!.containerID;
+    const container = docker.getContainer(containerID);
+    const exec = await container.exec({
+      Cmd: ["cat", fileLoc as string],
+      AttachStdout: true,
+      AttachStderr: true,
+    });
+    const stream = await exec.start({ hijack: true });
+    let output: string = "";
+    stream
+      .on("data", (data) => {
+        output += data.slice(8).toString();
+      })
+      .on("end", () => {
+        console.log(output);
+        socket.emit("set-editor-value", output);
+      });
+  } catch (err) {
+    console.log(err);
+    socket.emit("error", "Error in getting file content, please try again");
+  }
 };
 
 //to stop and remove the container

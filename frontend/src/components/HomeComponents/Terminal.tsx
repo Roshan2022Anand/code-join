@@ -83,7 +83,7 @@ const Terminal = () => {
       </header>
       <section className="flex-1 flex">
         <div ref={terminalRef} className="flex-1 size-full"></div>
-        <div className="w-[100px] border-2 bg-black"></div>
+        {/* <div className="w-[100px] border-2 bg-black"></div> */}
       </section>
     </article>
   );
