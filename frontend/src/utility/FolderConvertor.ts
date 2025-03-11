@@ -2,7 +2,7 @@ import { FolderStructureType } from "./Types";
 
 export const convertToFolder = (folder: string): FolderStructureType => {
   const folderStruct: FolderStructureType = {
-    root:{}
+    root: {},
   };
   const filteredFolder = folder
     .split("\n")
@@ -14,12 +14,10 @@ export const convertToFolder = (folder: string): FolderStructureType => {
 
   const setFolder = (k: number, parent: FolderStructureType) => {
     if (k >= filteredFolder.length) return;
-
     for (let i = k; i < filteredFolder.length; i++) {
       if (filteredFolder[i].includes("/")) {
         const structure = filteredFolder[i].split("/");
         parent = folderStruct;
-
         for (let j = 1; j < structure.length; j++) {
           if (parent[structure[j]] == "file") parent[structure[j]] = {};
           parent = parent[structure[j]] as FolderStructureType;
@@ -30,6 +28,7 @@ export const convertToFolder = (folder: string): FolderStructureType => {
       parent[filteredFolder[i]] = "file";
     }
   };
+  
   setFolder(0, folderStruct);
   return folderStruct;
 };

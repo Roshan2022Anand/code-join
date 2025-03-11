@@ -1,6 +1,10 @@
 import { Socket } from "socket.io";
 import { rooms } from "../configs/Socket";
-import { createContainer, runNonInteractiveCmd } from "./Container.service";
+import {
+  createContainer,
+  createNewStream,
+  runNonInteractiveCmd,
+} from "./Container.service";
 import crypto from "crypto";
 
 const RoomOperations = (socket: Socket) => {
@@ -8,7 +12,6 @@ const RoomOperations = (socket: Socket) => {
   socket.on("create-room", async ({ name, profile, lang }) => {
     //generate a random room id using crypto
     const roomID = crypto.randomBytes(8).toString("hex");
-    console.log("roomID", roomID);
 
     if (rooms.has(roomID)) {
       socket.emit("error", "Room already exists");
@@ -28,8 +31,11 @@ const RoomOperations = (socket: Socket) => {
       });
 
       runNonInteractiveCmd(socket, roomID, true);
+      createNewStream(socket, roomID);
 
-      rooms.get(roomID)!.members.set(socket.id, { name, profile,currFile:null });
+      rooms
+        .get(roomID)!
+        .members.set(socket.id, { name, profile, currFile: null });
       socket.join(roomID);
       socket.emit("room-created", roomID);
     }
@@ -38,7 +44,9 @@ const RoomOperations = (socket: Socket) => {
   //event to join a room
   socket.on("join-room", ({ roomID, name, profile }) => {
     if (rooms.has(roomID)) {
-      rooms.get(roomID)!.members.set(socket.id, { name, profile,currFile:null });
+      rooms
+        .get(roomID)!
+        .members.set(socket.id, { name, profile, currFile: null });
       socket.join(roomID);
       socket.emit("room-joined", roomID);
 

@@ -3,6 +3,7 @@ interface TerminalStateType {
   editorLang: string | null;
   editorCode: string | null;
   openedFile: string | null;
+  currentFolder: string;
   runCmd: string | null;
   sideBarOpt: string | null;
   folderStructure: string | null;
@@ -12,10 +13,11 @@ const initialState: TerminalStateType = {
   editorLang: null,
   editorCode: null,
   openedFile: null,
+  currentFolder: "",
   runCmd: null,
-  // sideBarOpt: "fileopt",
   // test
-  sideBarOpt: null,
+  // sideBarOpt: null,
+  sideBarOpt: "fileopt",
   folderStructure: null,
 };
 
@@ -24,10 +26,11 @@ const FileSlice = createSlice({
   initialState,
   reducers: {
     setOpenedFile: (state, action) => {
-      const { langObj, openedFile } = action.payload;
+      const { langObj, openedFile, loc } = action.payload;
       state.editorLang = langObj.name;
       state.runCmd = langObj.runCmd;
       state.openedFile = openedFile;
+      state.currentFolder = loc;
     },
     setSideBarOpt: (state, action) => {
       state.sideBarOpt = action.payload;
@@ -38,10 +41,18 @@ const FileSlice = createSlice({
     setEditorCode: (state, action) => {
       state.editorCode = action.payload;
     },
+    setCurrentFolder: (state, action) => {
+      state.currentFolder = action.payload;
+    },
   },
 });
 
-export const { setOpenedFile,setEditorCode, setSideBarOpt, setFolderStructure } =
-  FileSlice.actions;
+export const {
+  setOpenedFile,
+  setEditorCode,
+  setSideBarOpt,
+  setFolderStructure,
+  setCurrentFolder,
+} = FileSlice.actions;
 
 export default FileSlice.reducer;

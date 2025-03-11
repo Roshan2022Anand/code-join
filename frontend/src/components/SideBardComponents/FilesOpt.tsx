@@ -2,8 +2,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { convertToFolder } from "../../utility/FolderConvertor";
 import { FolderStructureType } from "../../utility/Types";
 import { RootState } from "../../redux/store";
-import { useEffect, useState } from "react";
-import { setOpenedFile } from "../../redux/slices/FileSlice";
+import { useEffect,  useState } from "react";
+import { setCurrentFolder, setOpenedFile } from "../../redux/slices/FileSlice";
 import { langExt } from "../../utility/languages";
 
 const FilesOpt = () => {
@@ -19,7 +19,6 @@ const FilesOpt = () => {
     //to handle the click on the file
     const handleFileClick = (fileName: string, loc: string) => {
       if (!roomID) return;
-
       const openedFile = `${loc}${fileName}`;
       setactiveEle(openedFile);
       const langObj = langExt[fileName.split(".").pop() as string] || {
@@ -27,7 +26,12 @@ const FilesOpt = () => {
         runCmd: "",
       };
 
-      dispatch(setOpenedFile({ langObj, openedFile }));
+      dispatch(setOpenedFile({ langObj, openedFile, loc }));
+    };
+
+    const handleFolderClick = (loc: string, key: string) => {
+      setactiveEle(`${loc}${key}`);
+      dispatch(setCurrentFolder(`${loc}${key}/`));
     };
 
     //to convert the JS object to JSX elements
@@ -56,7 +60,7 @@ const FilesOpt = () => {
                   activeEle === `${loc}${key}` && "bg-accent-400"
                 }`}
                 id={key}
-                onClick={() => setactiveEle(`${loc}${key}`)}
+                onClick={() => handleFolderClick(loc, key)}
               >
                 {key}
               </summary>
@@ -74,15 +78,16 @@ const FilesOpt = () => {
     };
 
     if (!folderStructure) return;
+    console.log(folderStructure)
     const { root } = convertToFolder(folderStructure);
     setfolderElement(createElements(root as FolderStructureType, ""));
   }, [folderStructure, activeEle, dispatch, roomID]);
 
   return (
-    <details className="size-full px-1" open>
-      <summary className="border-b-2">root</summary>
-      <pre>{folderElement}</pre>
-    </details>
+    <figure className="size-full px-1">
+      <section className="flex justify-between border-b-2">root</section>
+      {folderElement}
+    </figure>
   );
 };
 

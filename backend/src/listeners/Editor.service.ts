@@ -13,13 +13,15 @@ const EditorOperations = (socket: Socket) => {
   socket.on("get-file-content", ({ roomID, openedFile }) => {
     let cache = false;
     const members = rooms.get(roomID)!.members;
-    members.forEach((member, key) => {
-      if (member.currFile == openedFile) {
-        console.log("want code from friend");
+
+    //to check if other members are using the same file
+    for (let [key, value] of members) {
+      if (value.currFile == openedFile) {
         io.to(key).emit("get-member-content", socket.id);
         cache = true;
+        break;
       }
-    });
+    }
 
     if (!cache) {
       GetFileCode(roomID, openedFile, socket);
@@ -27,8 +29,7 @@ const EditorOperations = (socket: Socket) => {
     members.get(socket.id)!.currFile = openedFile;
   });
 
-  socket.on("set-member-content", ({ socketID, code })=>{
-    console.log("code from frd",code);
+  socket.on("set-member-content", ({ socketID, code }) => {
     io.to(socketID).emit("set-editor-value", code);
   });
 };

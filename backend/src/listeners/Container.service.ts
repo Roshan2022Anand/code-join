@@ -10,14 +10,33 @@ export const createContainer = async (lang: langKey, socket: Socket) => {
   try {
     const language = languages[lang as langKey];
 
-    //creating a container
+    // Creating a container with proper command array
     let container = await docker.createContainer({
       Image: language.env,
       AttachStdin: true,
       AttachStdout: true,
       Tty: true,
       WorkingDir: "/root",
+      Cmd: [
+        "bash",
+        "-c",
+        `echo '${language.code}' > main.${language.ext} && exec bash`,
+      ],
+      Env: ["PORT=9090"],
+      ExposedPorts: {
+        "9090/tcp": {},
+      },
+      HostConfig: {
+        PortBindings: {
+          "9090/tcp": [
+            {
+              HostPort: "9090", 
+            },
+          ],
+        },
+      },
     });
+
     await container.start();
     return { containerID: container.id };
   } catch (err) {
@@ -43,8 +62,12 @@ export const runNonInteractiveCmd = async (
       AttachStderr: true,
     });
     const stream = await exec.start({ hijack: true });
+    let output = "";
     stream.on("data", (data) => {
-      io.to(roomID).emit("folder-details", data.slice(8).toString());
+      output += data.slice(8).toString();
+    });
+    stream.on("end", () => {
+      io.to(roomID).emit("folder-details", output);
     });
   }
 
@@ -89,7 +112,6 @@ export const GetFileCode = async (
   socket: Socket
 ) => {
   try {
-    const io = getIO();
     const containerID = rooms.get(roomID as string)!.containerID;
     const container = docker.getContainer(containerID);
     const exec = await container.exec({
@@ -104,7 +126,6 @@ export const GetFileCode = async (
         output += data.slice(8).toString();
       })
       .on("end", () => {
-        console.log(output);
         socket.emit("set-editor-value", output);
       });
   } catch (err) {
@@ -119,6 +140,7 @@ export const StopContainer = async (containerID: string) => {
     let container = docker.getContainer(containerID);
     await container.stop();
     await container.remove();
+    console.log("Container stopped and removed");
   } catch (err) {
     console.log(err);
   }

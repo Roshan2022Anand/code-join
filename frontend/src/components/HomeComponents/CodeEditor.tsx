@@ -8,8 +8,8 @@ import { setActiveSection } from "../../redux/slices/EditorSlice";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import useTerminalService from "../../sockets/TerminalSocket";
-import { useMyContext } from "../../utility/MyContext";
 import useEditorService from "../../sockets/EditorSocket";
+import { useMyContext } from "../../utility/MyContext";
 import { setFolderStructure } from "../../redux/slices/FileSlice";
 
 const CodeEditor = () => {
@@ -84,7 +84,7 @@ const CodeEditor = () => {
         runStream(`echo "${filteredCode}" > ${openedFile}`, false);
       }
     };
-  }, [activeSection, openedFile, runStream,editor]);
+  }, [activeSection, openedFile, runStream, editor]);
 
   //test
   const { socket } = useMyContext();
