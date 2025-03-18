@@ -78,7 +78,6 @@ const FilesOpt = () => {
     };
 
     if (!folderStructure) return;
-    console.log(folderStructure)
     const { root } = convertToFolder(folderStructure);
     setfolderElement(createElements(root as FolderStructureType, ""));
   }, [folderStructure, activeEle, dispatch, roomID]);

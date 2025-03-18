@@ -5,10 +5,10 @@ import { Room } from "../helpers/Types";
 import TerminalOperations from "../listeners/Terminal.service";
 import { StopContainer } from "../listeners/Container.service";
 import EditorOperations from "../listeners/Editor.service";
+import RoomTestOperation from "../listeners/Room_test.service";
 
 //global object to store rooms information
 export const rooms: Room = new Map([
-  // test
   [
     "123",
     {
@@ -36,6 +36,7 @@ export const initSocket = (server: HttpServer) => {
     RoomOperations(socket);
     TerminalOperations(socket);
     EditorOperations(socket);
+    RoomTestOperation(socket);
 
     //on user disconnect
     socket.on("disconnect", () => {

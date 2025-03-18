@@ -9,8 +9,10 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import useTerminalService from "../../sockets/TerminalSocket";
 import useEditorService from "../../sockets/EditorSocket";
+import { useMyContext } from "../../utility/MyContext";
+import { setFolderStructure } from "../../redux/slices/FileSlice";
 
-const CodeEditor = () => {
+const CodeEditorTest = () => {
   const navigate = useNavigate();
   //global state from redux
   const dispatch = useDispatch();
@@ -84,6 +86,15 @@ const CodeEditor = () => {
     };
   }, [activeSection, openedFile, runStream, editor]);
 
+  const { socket } = useMyContext();
+  useEffect(() => {
+    // joinRoom("123");
+    socket?.on("folder-details", (data: string) => {
+      dispatch(setFolderStructure(data));
+    });
+    socket?.emit("join-test-room", { roomID, name: "", profile: "jjsj" });
+  }, [socket]);
+
   return (
     <>
       <article
@@ -127,4 +138,4 @@ const CodeEditor = () => {
   );
 };
 
-export default CodeEditor;
+export default CodeEditorTest;

@@ -6,6 +6,7 @@ import CodeEditor from "../components/HomeComponents/CodeEditor";
 import SideBar from "../components/HomeComponents/SideBar";
 import Header from "../components/HomeComponents/Header";
 import { setEditorHeight, setEditorWidth } from "../redux/slices/EditorSlice";
+import CodeEditorTest from "../components/HomeComponents/CodeEditor_test";
 
 const HomePg = () => {
   //global state from redux
@@ -99,8 +100,8 @@ const HomePg = () => {
             width: `clamp(50%,${editorWidth}px,${windowWidth - 110}px)`,
           }}
         >
-          <CodeEditor />
-
+          {/* <CodeEditor /> */}
+          <CodeEditorTest/>
           <button
             className="mx-2 resize-btn cursor-ns-resize h-[5px] after:w-[50px] after:h-full"
             onMouseDown={startEditorResize}

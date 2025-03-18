@@ -1,9 +1,8 @@
-import internal from "stream";
 import docker from "../configs/Docker";
 import { languages } from "../helpers/PrgLang";
-import { langKey } from "../helpers/Types";
 import { getIO, rooms } from "../configs/Socket";
 import { Socket } from "socket.io";
+import { langKey } from "../helpers/Types";
 
 //funtion to create a container
 export const createContainer = async (lang: langKey, socket: Socket) => {
@@ -30,7 +29,7 @@ export const createContainer = async (lang: langKey, socket: Socket) => {
         PortBindings: {
           "9090/tcp": [
             {
-              HostPort: "9090", 
+              HostPort: "9090",
             },
           ],
         },
@@ -82,7 +81,7 @@ export const runNonInteractiveCmd = async (
     stream.end();
   }
 
-  //test
+  // test
   if (rooms.get(roomID)!.streams.length === 0) createNewStream(socket, roomID);
 };
 

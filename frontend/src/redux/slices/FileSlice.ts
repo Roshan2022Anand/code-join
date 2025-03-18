@@ -15,8 +15,6 @@ const initialState: TerminalStateType = {
   openedFile: null,
   currentFolder: "",
   runCmd: null,
-  // test
-  // sideBarOpt: null,
   sideBarOpt: "fileopt",
   folderStructure: null,
 };

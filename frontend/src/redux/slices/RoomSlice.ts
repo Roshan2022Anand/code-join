@@ -8,15 +8,12 @@ interface RoomState {
 }
 
 const initialState: RoomState = {
-  //test
+  // test
   roomID: "123",
-  userName: "test",
-  email: "",
-  profile: "s",
   // roomID: null,
-  // userName: null,
-  // email: null,
-  // profile: null,
+  userName: null,
+  email: null,
+  profile: null,
 };
 const RoomSlice = createSlice({
   name: "room",
