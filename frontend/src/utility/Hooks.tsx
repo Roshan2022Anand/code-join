@@ -16,6 +16,7 @@ export const useAuth = () => {
             withCredentials: true,
           }
         );
+
         const user = res.data.user;
         dispatch(
           setBasicDetails({

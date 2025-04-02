@@ -2,14 +2,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { convertToFolder } from "../../utility/FolderConvertor";
 import { FolderStructureType } from "../../utility/Types";
 import { RootState } from "../../redux/store";
-import { useEffect,  useState } from "react";
+import { useEffect, useState } from "react";
 import { setCurrentFolder, setOpenedFile } from "../../redux/slices/FileSlice";
 import { langExt } from "../../utility/languages";
 
 const FilesOpt = () => {
   //global state from redux
   const dispatch = useDispatch();
-  const { folderStructure } = useSelector((state: RootState) => state.file);
+  const { folderStructure, openedFile } = useSelector(
+    (state: RootState) => state.file
+  );
   const { roomID } = useSelector((state: RootState) => state.room);
 
   const [folderElement, setfolderElement] = useState<JSX.Element[]>([]);
@@ -80,7 +82,7 @@ const FilesOpt = () => {
     if (!folderStructure) return;
     const { root } = convertToFolder(folderStructure);
     setfolderElement(createElements(root as FolderStructureType, ""));
-  }, [folderStructure, activeEle, dispatch, roomID]);
+  }, [folderStructure, activeEle, dispatch, roomID, openedFile]);
 
   return (
     <figure className="size-full px-1">

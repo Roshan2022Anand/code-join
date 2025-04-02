@@ -14,7 +14,7 @@ const RoomOpt = () => {
     });
   };
   return (
-    <section>
+    <section className="flex flex-col h-full">
       <figure
         className="flex items-center justify-between px-3 border-b-2 "
         onClick={handleIdCopy}

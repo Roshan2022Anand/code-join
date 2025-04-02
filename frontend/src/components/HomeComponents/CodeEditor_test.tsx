@@ -92,7 +92,11 @@ const CodeEditorTest = () => {
     socket?.on("folder-details", (data: string) => {
       dispatch(setFolderStructure(data));
     });
-    socket?.emit("join-test-room", { roomID, name: "", profile: "jjsj" });
+    socket?.emit("join-test-room", {
+      roomID,
+      name: `name${Math.floor(Math.random() * 10)}`,
+      profile: "jjsj",
+    });
   }, [socket]);
 
   return (

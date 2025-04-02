@@ -53,10 +53,12 @@ const useEditorService = (
       if (!parent[target[i]]) {
         dispatch(
           setOpenedFile({
-            langObj: { name: "", runCmd: "" },
-            openedFile: null,
+            openedFile: "",
+            loc: "",
+            langObj: { name: "plaintext", runCmd: "" },
           })
         );
+        dispatch(setEditorCode(null));
         return;
       } else if (parent[target[i]] == "file") return;
 
