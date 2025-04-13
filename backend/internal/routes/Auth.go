@@ -3,14 +3,33 @@ package routes
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
+
+// to sign jwt token
+func signJwtToken(userData map[string]interface{}) (string, error) {
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"name":    userData["name"],
+		"profile": userData["avatar_url"],
+		"exp":     jwt.NewNumericDate(time.Now().Add(7 * 24 * time.Hour)),
+	})
+
+	secret := os.Getenv("JWT_SECRET")
+
+	tokenString, err := token.SignedString([]byte(secret))
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
+}
 
 // to get access token from github
 func getAccessToken(client *http.Client, code string) string {
@@ -94,13 +113,21 @@ func handleGithubCallback(w http.ResponseWriter, r *http.Request) {
 
 	userData := getUserData(client, accessToken)
 
-	fmt.Fprintln(w, "user data : ", userData)
-}
+	jwtToken, err := signJwtToken(userData)
+	if err != nil {
+		http.Error(w, "error signing jwt token", http.StatusInternalServerError)
+		return
+	}
 
-func createJwtToken(userData map[string]interface{}) string {
-	algo := jwt.GetAlgorithms()
-	fmt.Println("algorithms : ", algo)
-	return algo[0]
+	//set cookie for 1 week
+	cookie := &http.Cookie{
+		Name:    "jwt",
+		Value:   jwtToken,
+		Expires: time.Now().Add(7 * 24 * time.Hour),
+		MaxAge:  7 * 24 * 60 * 60,
+	}
+	http.SetCookie(w, cookie)
+	w.Write([]byte("cookie set successfully"))
 }
 
 // to redirect to github auth page
@@ -115,8 +142,40 @@ func redirectToGihubAuth(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, finalUrl, http.StatusTemporaryRedirect)
 }
 
-// base url /auth/
+// to get user details
+func getUserDetails(w http.ResponseWriter, r *http.Request) {
+	jwtCookie, err := r.Cookie("jwt")
+	if err != nil {
+		http.Error(w, "unauthorized access", http.StatusUnauthorized)
+		return
+	}
+
+	jwtString := jwtCookie.Value
+
+	token, err := jwt.Parse(jwtString, func(t *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("JWT_SECRET")), nil
+	})
+	if err != nil || !token.Valid {
+		http.Error(w, "unauthorized access", http.StatusUnauthorized)
+		return
+	}
+
+	userData := token.Claims.(jwt.MapClaims)
+
+	jsonUserData, err := json.Marshal(userData)
+	if err != nil {
+		http.Error(w, "error marshalling user data", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonUserData)
+}
+
+// routes to handle auth
 func AuthRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /auth/github", redirectToGihubAuth)
 	mux.HandleFunc("GET /auth/callback/github", handleGithubCallback)
+	mux.HandleFunc("GET /auth/user", getUserDetails)
 }
