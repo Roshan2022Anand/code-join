@@ -1,4 +1,3 @@
-// import { useEffect } from "react";
 import { FaGithub } from "react-icons/fa";
 import { useAuth } from "./utility/Hooks";
 function App() {

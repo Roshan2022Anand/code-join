@@ -8,8 +8,8 @@ import {
   setEditorWidth,
 } from "../../redux/slices/EditorSlice";
 import RoomOpt from "../SideBardComponents/RoomOpt";
-import FilesOpt from "../SideBardComponents/FilesOpt";
 import { setSideBarOpt } from "../../redux/slices/FileSlice";
+import LangOtp from "../SideBardComponents/LangOtp";
 
 const SideBar = () => {
   const dispatch = useDispatch();
@@ -49,7 +49,7 @@ const SideBar = () => {
       </header>
       <section className="flex-1 flex">
         <aside className="w-[95px] flex flex-col p-3 gap-3 bg-soft">
-          <button onClick={() => handleOption("fileopt")}>
+          <button onClick={() => handleOption("langopt")}>
             <FaFile className="icon-md-soft" />
           </button>
           <button onClick={() => handleOption("roomopt")}>
@@ -59,7 +59,7 @@ const SideBar = () => {
         {sideBarOpt && (
           <article className="flex-1 flex flex-col overflow-x-hidden">
             {sideBarOpt == "roomopt" && <RoomOpt />}
-            {sideBarOpt == "fileopt" && <FilesOpt />}
+            {sideBarOpt == "langopt" && <LangOtp />}
           </article>
         )}
       </section>

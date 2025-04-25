@@ -7,15 +7,13 @@ import { Provider } from "react-redux";
 import { store } from "./redux/store.ts";
 //@ts-ignore
 import "./index.css";
-import Dashboard from "./pages/Dashboard.tsx";
 import ContextProvider from "./components/ContextProvider.tsx";
 import { Bounce, ToastContainer } from "react-toastify";
 import { ConnectSocket } from "./sockets/ConnectSocket.tsx";
 
 const router = createBrowserRouter([
   { path: "/", element: <App /> },
-  { path: "/home", element: <HomePg /> },
-  { path: "/dashboard", element: <Dashboard /> },
+  { path: "/editor", element: <HomePg /> },
 ]);
 
 createRoot(document.getElementById("root")!).render(

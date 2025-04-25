@@ -6,6 +6,8 @@ import { toast } from "react-toastify";
 
 const RoomOpt = () => {
   const { roomID } = useSelector((state: RootState) => state.room);
+
+  // Function to copy the room ID to clipboard
   const handleIdCopy = () => {
     navigator.clipboard.writeText(roomID as string).then(() => {
       toast.success("Room ID copied to clipboard");
@@ -13,6 +15,7 @@ const RoomOpt = () => {
       toast.error("Failed to copy Room ID");
     });
   };
+
   return (
     <section className="flex flex-col h-full">
       <figure

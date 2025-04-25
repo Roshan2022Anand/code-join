@@ -9,7 +9,7 @@ router.get(
   "/callback/github",
   passport.authenticate("github", { failureRedirect: "/" }),
   (req, res) => {
-    res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
+    res.redirect(`${process.env.FRONTEND_URL}/editor`);
   }
 );
 

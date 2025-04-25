@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import useTerminalService from "../../sockets/TerminalSocket";
 import useEditorService from "../../sockets/EditorSocket";
+import { GrConnect } from "react-icons/gr";
 
 const CodeEditor = () => {
   const navigate = useNavigate();
@@ -21,11 +22,6 @@ const CodeEditor = () => {
     (state: RootState) => state.file
   );
   const { roomID } = useSelector((state: RootState) => state.room);
-
-  //redirect to dashboard if no roomID
-  useEffect(() => {
-    if (!roomID) navigate("/dashboard");
-  }, [roomID, navigate]);
 
   // Set custom theme for monaco editor
   const monaco = useMonaco();
@@ -118,8 +114,20 @@ const CodeEditor = () => {
             />
           </>
         ) : (
-          <section className="flex-1 flex items-center justify-center">
+          <section className="flex-1 flex flex-col items-center justify-center">
             <FaLaptopCode className="icon-lg" />
+            <p className="text-accent-700">choose a language</p>
+            <p className="text-accent-700">or</p>
+            <form className="flex rounded-md overflow-hidden">
+              <input
+                type="text"
+                placeholder="Enter room ID"
+                className="outline-none text-black font-bold bg-accent-900 px-2"
+              />
+              <button className="bg-accent-200 px-2 py-1 button ">
+                <GrConnect className="icon-md" />
+              </button>
+            </form>
           </section>
         )}
       </article>

@@ -4,9 +4,7 @@ import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import { useMonaco } from "@monaco-editor/react";
-import { convertToFolder } from "../utility/FolderConvertor";
-import { FolderStructureType } from "../utility/Types";
-import { setEditorCode, setOpenedFile } from "../redux/slices/FileSlice";
+import { setEditorCode } from "../redux/slices/FileSlice";
 
 const useEditorService = (
   editor: Monaco.editor.IStandaloneCodeEditor | null
@@ -14,9 +12,7 @@ const useEditorService = (
   const dispatch = useDispatch();
   const { socket } = useMyContext();
   const { roomID } = useSelector((state: RootState) => state.room);
-  const { openedFile, folderStructure } = useSelector(
-    (state: RootState) => state.file
-  );
+  const { openedFile } = useSelector((state: RootState) => state.file);
   const monaco = useMonaco();
 
   //get the code for the selected file
@@ -41,32 +37,6 @@ const useEditorService = (
       });
     }
   }, [socket, editor, dispatch]);
-
-  //check if  openedFile exists in the folderStructure
-  useEffect(() => {
-    if (!openedFile || !folderStructure) return;
-
-    const { root } = convertToFolder(folderStructure);
-    const target = openedFile.split("/");
-
-    const checkExistence = (i: number, parent: FolderStructureType) => {
-      if (!parent[target[i]]) {
-        dispatch(
-          setOpenedFile({
-            openedFile: "",
-            loc: "",
-            langObj: { name: "plaintext", runCmd: "" },
-          })
-        );
-        dispatch(setEditorCode(null));
-        return;
-      } else if (parent[target[i]] == "file") return;
-
-      checkExistence(i + 1, parent[target[i]] as FolderStructureType);
-    };
-
-    checkExistence(0, root as FolderStructureType);
-  }, [openedFile, folderStructure, dispatch]);
 
   const isRemoteUpdate = useRef(false);
   useEffect(() => {
