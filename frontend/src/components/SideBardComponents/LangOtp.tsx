@@ -1,5 +1,25 @@
+import useRoomServices from "../../sockets/RoomSocket";
+import { LangIcons } from "../../utility/Types";
+
 const LangOtp = () => {
-  return <div>LangOtp</div>;
+  const { createRoom } = useRoomServices();
+
+  return (
+    <section className="flex flex-col px-1 py-2 gap-1">
+      {LangIcons.map((lang) => (
+        <button
+          className="flex button px-2 py-1 gap-2 items-center bg-accent-500 rounded-md"
+          key={lang.name}
+          onClick={() =>
+            createRoom(lang.name == "javascript" ? "node" : lang.name)
+          }
+        >
+          <lang.icon className="icon-md-soft" />
+          <p>{lang.name}</p>
+        </button>
+      ))}
+    </section>
+  );
 };
 
 export default LangOtp;

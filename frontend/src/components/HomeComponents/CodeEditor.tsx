@@ -1,27 +1,24 @@
 import { Editor, OnMount, useMonaco } from "@monaco-editor/react";
 import type * as Monaco from "monaco-editor";
 import { useEffect, useState } from "react";
-import { FaCode, FaLaptopCode, FaPlay } from "react-icons/fa";
+import { FaCode, FaPlay } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { setActiveSection } from "../../redux/slices/EditorSlice";
-import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import useTerminalService from "../../sockets/TerminalSocket";
 import useEditorService from "../../sockets/EditorSocket";
-import { GrConnect } from "react-icons/gr";
+import { RiLoaderLine } from "react-icons/ri";
+import RoomJoin from "./RoomJoin";
 
 const CodeEditor = () => {
-  const navigate = useNavigate();
   //global state from redux
   const dispatch = useDispatch();
   const { editorHeight, activeSection } = useSelector(
     (state: RootState) => state.editor
   );
-  const { editorLang, openedFile, runCmd, editorCode } = useSelector(
-    (state: RootState) => state.file
-  );
-  const { roomID } = useSelector((state: RootState) => state.room);
+  const { editorLang, openedFile, runCmd, editorCode, editorLoading } =
+    useSelector((state: RootState) => state.file);
 
   // Set custom theme for monaco editor
   const monaco = useMonaco();
@@ -115,19 +112,11 @@ const CodeEditor = () => {
           </>
         ) : (
           <section className="flex-1 flex flex-col items-center justify-center">
-            <FaLaptopCode className="icon-lg" />
-            <p className="text-accent-700">choose a language</p>
-            <p className="text-accent-700">or</p>
-            <form className="flex rounded-md overflow-hidden">
-              <input
-                type="text"
-                placeholder="Enter room ID"
-                className="outline-none text-black font-bold bg-accent-900 px-2"
-              />
-              <button className="bg-accent-200 px-2 py-1 button ">
-                <GrConnect className="icon-md" />
-              </button>
-            </form>
+            {editorLoading ? (
+              <RiLoaderLine className="icon-lg animate-spin" />
+            ) : (
+              <RoomJoin />
+            )}
           </section>
         )}
       </article>

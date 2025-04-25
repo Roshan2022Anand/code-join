@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { FaFile, FaUserFriends } from "react-icons/fa";
+import { FaRegFileCode, FaUserFriends } from "react-icons/fa";
 import { IoOptionsSharp } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
@@ -50,7 +50,7 @@ const SideBar = () => {
       <section className="flex-1 flex">
         <aside className="w-[95px] flex flex-col p-3 gap-3 bg-soft">
           <button onClick={() => handleOption("langopt")}>
-            <FaFile className="icon-md-soft" />
+            <FaRegFileCode className="icon-md-soft" />
           </button>
           <button onClick={() => handleOption("roomopt")}>
             <FaUserFriends className="icon-md-soft" />

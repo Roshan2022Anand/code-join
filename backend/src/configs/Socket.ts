@@ -2,23 +2,11 @@ import { Server as SocketServer } from "socket.io";
 import { Server as HttpServer } from "http";
 import RoomOperations from "../listeners/Room.service";
 import { Room } from "../helpers/Types";
-import TerminalOperations from "../listeners/Terminal.service";
 import { StopContainer } from "../listeners/Container.service";
 import EditorOperations from "../listeners/Editor.service";
-import RoomTestOperation from "../listeners/Room_test.service";
 
 //global object to store rooms information
-export const rooms: Room = new Map([
-  [
-    "123",
-    {
-      containerID:
-        "50c5b781f5c233d1d1a140042da319096c3cf20aa080c34a5153cee63dffa619",
-      streams: [],
-      members: new Map(),
-    },
-  ],
-]);
+export const rooms: Room = new Map([]);
 
 //to initilize socket
 let io: SocketServer;
@@ -34,9 +22,7 @@ export const initSocket = (server: HttpServer) => {
     console.log("User connected");
 
     RoomOperations(socket);
-    TerminalOperations(socket);
     EditorOperations(socket);
-    RoomTestOperation(socket);
 
     //on user disconnect
     socket.on("disconnect", () => {
@@ -44,8 +30,6 @@ export const initSocket = (server: HttpServer) => {
         if (room.members.has(socket.id)) {
           room.members.delete(socket.id);
           if (room.members.size === 0) {
-            // test
-            rooms.get(roomID)!.streams = [];
             // StopContainer(room.containerID);
             // rooms.delete(roomID);
           }
