@@ -15,7 +15,7 @@ const LangOtp = () => {
           key={lang.name}
           onClick={() => {
             createRoom(lang.name == "javascript" ? "node" : lang.name);
-            dispatch(setLangOpt({name:lang.name, cmd:lang.runCmd}));
+            dispatch(setLangOpt(lang.name));
           }}
         >
           <lang.icon className="icon-md-soft" />

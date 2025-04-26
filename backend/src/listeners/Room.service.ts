@@ -45,6 +45,7 @@ const RoomOperations = (socket: Socket) => {
       rooms.get(roomID)!.members.set(socket.id, { name, profile });
       socket.join(roomID);
       socket.emit("room-joined", roomID);
+      socket.to(roomID).emit("get-member-content", socket.id);
     } else {
       socket.emit("error", "Room does not exist");
     }

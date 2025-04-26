@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import { useMonaco } from "@monaco-editor/react";
-import { setEditorCode } from "../redux/slices/FileSlice";
+import { setEditorCode, setLangOpt } from "../redux/slices/FileSlice";
 
 const useEditorService = (
   editor: Monaco.editor.IStandaloneCodeEditor | null
@@ -12,7 +12,9 @@ const useEditorService = (
   const dispatch = useDispatch();
   const { socket } = useMyContext();
   const { roomID } = useSelector((state: RootState) => state.room);
-  const { openedFile } = useSelector((state: RootState) => state.file);
+  const { openedFile, editorLang } = useSelector(
+    (state: RootState) => state.file
+  );
   const monaco = useMonaco();
 
   //get the code for the selected file
@@ -25,18 +27,21 @@ const useEditorService = (
   useEffect(() => {
     if (!socket) return;
     if (!socket.hasListeners("set-editor-value")) {
-      socket.on("set-editor-value", (output) => {
-        dispatch(setEditorCode(output));
+      socket.on("set-editor-value", ({ code, editorLang }) => {
+        dispatch(setLangOpt(editorLang));
+        dispatch(setEditorCode(code));
       });
     }
 
     if (!socket.hasListeners("get-member-content") && editor !== null) {
       socket.on("get-member-content", (socketID) => {
         const code = editor.getValue();
-        socket.emit("set-member-content", { socketID, code });
+
+        if (!code) return;
+        socket.emit("set-member-content", { socketID, code, editorLang });
       });
     }
-  }, [socket, editor, dispatch]);
+  }, [socket, editor, dispatch, editorLang]);
 
   const isRemoteUpdate = useRef(false);
   useEffect(() => {
