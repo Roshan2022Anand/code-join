@@ -1,7 +1,10 @@
+import { useDispatch } from "react-redux";
 import useRoomServices from "../../sockets/RoomSocket";
 import { LangIcons } from "../../utility/Types";
+import { setLangOpt } from "../../redux/slices/FileSlice";
 
 const LangOtp = () => {
+  const dispatch = useDispatch();
   const { createRoom } = useRoomServices();
 
   return (
@@ -10,9 +13,10 @@ const LangOtp = () => {
         <button
           className="flex button px-2 py-1 gap-2 items-center bg-accent-500 rounded-md"
           key={lang.name}
-          onClick={() =>
-            createRoom(lang.name == "javascript" ? "node" : lang.name)
-          }
+          onClick={() => {
+            createRoom(lang.name == "javascript" ? "node" : lang.name);
+            dispatch(setLangOpt({name:lang.name, cmd:lang.runCmd}));
+          }}
         >
           <lang.icon className="icon-md-soft" />
           <p>{lang.name}</p>

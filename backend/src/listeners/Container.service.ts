@@ -5,7 +5,10 @@ import { Socket } from "socket.io";
 import { langKey } from "../helpers/Types";
 
 //to create a container
-export const createContainer = async (lang: langKey, socket: Socket) => {
+export const createContainer = async (
+  lang: langKey,
+  socket: Socket
+): Promise<{ containerID?: string; code?: string }> => {
   try {
     const language = languages[lang as langKey];
 
@@ -20,7 +23,7 @@ export const createContainer = async (lang: langKey, socket: Socket) => {
     });
 
     await container.start();
-    return { containerID: container.id };
+    return { containerID: container.id, code: language.code };
   } catch (err) {
     return {};
   }

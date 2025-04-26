@@ -13,7 +13,7 @@ const initialState: TerminalStateType = {
   editorCode: null,
   openedFile: null,
   runCmd: null,
-  sideBarOpt: null,
+  sideBarOpt: "langopt",
   editorLoading: false,
 };
 
@@ -21,10 +21,11 @@ const FileSlice = createSlice({
   name: "terminal",
   initialState,
   reducers: {
-    setOpenedFile: (state, action) => {
-      const { langObj } = action.payload;
-      state.editorLang = langObj.name;
-      state.runCmd = langObj.runCmd;
+    setLangOpt: (state, action) => {
+      const { name, cmd } = action.payload;
+      console.log(name, cmd);
+      state.editorLang = name;
+      state.runCmd = cmd;
     },
     setSideBarOpt: (state, action) => {
       state.sideBarOpt = action.payload;
@@ -38,7 +39,7 @@ const FileSlice = createSlice({
   },
 });
 
-export const { setOpenedFile, setEditorCode, setSideBarOpt, setEditorLoading } =
+export const { setLangOpt, setEditorCode, setSideBarOpt, setEditorLoading } =
   FileSlice.actions;
 
 export default FileSlice.reducer;

@@ -56,20 +56,15 @@ import Docker from "dockerode";
 //connect to local docker demon
 
 // const docker = new Docker({ socketPath: "/var/run/docker.sock" });
-const docker = new Docker();
+const docker = new Docker({
+  socketPath:"/home/roshan-anand/.docker/desktop/docker.sock"
+});
 
 docker.ping((err: Error) => {
   if (err) {
     console.error("Error connecting to Docker daemon:", err);
   } else {
     console.log("Successfully connected to Docker daemon");
-    docker.listContainers((err, containers) => {
-      if (err) {
-        console.error("Error listing containers:", err);
-      } else {
-        console.log("Docker containers:", containers);
-      }
-    });
   }
 });
 

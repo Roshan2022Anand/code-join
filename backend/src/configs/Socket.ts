@@ -1,6 +1,6 @@
 import { Server as SocketServer } from "socket.io";
 import { Server as HttpServer } from "http";
-import RoomOperations from "../listeners/Room.service";
+import RoomOperations, { LeaveRoom } from "../listeners/Room.service";
 import { Room } from "../helpers/Types";
 import { StopContainer } from "../listeners/Container.service";
 import EditorOperations from "../listeners/Editor.service";
@@ -28,10 +28,11 @@ export const initSocket = (server: HttpServer) => {
     socket.on("disconnect", () => {
       for (const [roomID, room] of rooms) {
         if (room.members.has(socket.id)) {
-          room.members.delete(socket.id);
+          LeaveRoom(socket, roomID);
+          // room.members.delete(socket.id);
           if (room.members.size === 0) {
-            // StopContainer(room.containerID);
-            // rooms.delete(roomID);
+            StopContainer(room.containerID);
+            rooms.delete(roomID);
           }
           console.log("User disconnected");
           break;
@@ -41,6 +42,7 @@ export const initSocket = (server: HttpServer) => {
   });
 };
 
+//to get the socket instance
 export const getIO = (): SocketServer => {
   if (!io) throw new Error("IO not initialized");
   return io;

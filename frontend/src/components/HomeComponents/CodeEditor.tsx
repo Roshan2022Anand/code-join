@@ -5,7 +5,6 @@ import { FaCode, FaPlay } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { setActiveSection } from "../../redux/slices/EditorSlice";
-import { toast } from "react-toastify";
 import useTerminalService from "../../sockets/TerminalSocket";
 import useEditorService from "../../sockets/EditorSocket";
 import { RiLoaderLine } from "react-icons/ri";
@@ -17,8 +16,9 @@ const CodeEditor = () => {
   const { editorHeight, activeSection } = useSelector(
     (state: RootState) => state.editor
   );
-  const { editorLang, openedFile, runCmd, editorCode, editorLoading } =
-    useSelector((state: RootState) => state.file);
+  const { editorLang, editorCode, editorLoading } = useSelector(
+    (state: RootState) => state.file
+  );
 
   // Set custom theme for monaco editor
   const monaco = useMonaco();
@@ -47,7 +47,7 @@ const CodeEditor = () => {
 
   useEditorService(editor); //hook for editor operations
 
-  const { runStream, setTerminalInput } = useTerminalService(); //hook for terminal operations
+  const { runStream } = useTerminalService(); //hook for terminal operations
 
   //to run the program
   const handleRunPrg = () => {
@@ -56,12 +56,8 @@ const CodeEditor = () => {
       //escaping special characters
       const filteredCode = code.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 
-      const cmd = `echo "${filteredCode}" > ${openedFile}`;
+      const cmd = `echo "${filteredCode}" > main`;
       runStream(cmd, false);
-
-      //setting up the run command
-      if (runCmd == "") toast.error("Language not supported");
-      else setTerminalInput(`${runCmd} ${openedFile}\n`);
     }
   };
 
@@ -72,10 +68,10 @@ const CodeEditor = () => {
         const code = editor.getValue();
         const filteredCode = code.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 
-        runStream(`echo "${filteredCode}" > ${openedFile}`, false);
+        runStream(`echo "${filteredCode}" > main`, false);
       }
     };
-  }, [activeSection, openedFile, runStream, editor]);
+  }, [activeSection, runStream, editor]);
 
   return (
     <>
@@ -97,7 +93,6 @@ const CodeEditor = () => {
         </header>
         {editorCode !== null ? (
           <>
-            <p>{openedFile?.replace(/\//g, " > ")}</p>
             <Editor
               height="1000px"
               language={editorLang || "plaintext"}

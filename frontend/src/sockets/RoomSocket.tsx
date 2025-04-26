@@ -4,12 +4,14 @@ import { useEffect } from "react";
 import { useMyContext } from "../utility/MyContext";
 import { setRoomID } from "../redux/slices/RoomSlice";
 import { toast } from "react-toastify";
-import { setEditorLoading } from "../redux/slices/FileSlice";
+import { setEditorCode, setEditorLoading } from "../redux/slices/FileSlice";
 
 const useRoomServices = () => {
   //gloabl state from redux
   const dispatch = useDispatch();
-  const { userName, profile } = useSelector((state: RootState) => state.room);
+  const { userName, profile, roomID } = useSelector(
+    (state: RootState) => state.room
+  );
 
   //socket from context
   const { socket } = useMyContext();
@@ -17,8 +19,11 @@ const useRoomServices = () => {
   //listen room events
   useEffect(() => {
     if (!socket) return;
+    if (socket.hasListeners("room-created")) return;
+
     //listen room-created event
-    socket.on("room-created", (roomID) => {
+    socket.on("room-created", ({ roomID, code }) => {
+      dispatch(setEditorCode(code));
       dispatch(setEditorLoading(false));
       dispatch(setRoomID(roomID));
     });
@@ -35,7 +40,6 @@ const useRoomServices = () => {
       toast.error(msg);
     });
 
-    //clean up
     return () => {
       socket.off("room-created");
       socket.off("room-joined");
@@ -54,6 +58,7 @@ const useRoomServices = () => {
   const createRoom = (lang: string) => {
     dispatch(setEditorLoading(true));
     socket?.emit("create-room", {
+      roomID,
       name: userName,
       profile,
       lang,
