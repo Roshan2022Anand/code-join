@@ -1,46 +1,42 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useMyContext } from "../utility/MyContext";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
+import { setTerminalOutput } from "../redux/slices/FileSlice";
 
 const useTerminalService = () => {
   //socket from context
-  const { socket, terminal } = useMyContext();
+  const { socket } = useMyContext();
 
   //global state from redux
   const dispatch = useDispatch();
   const { roomID } = useSelector((state: RootState) => state.room);
+  const { editorLang } = useSelector((state: RootState) => state.file);
 
   //terminal socket events captured
   useEffect(() => {
-    if (!socket || !terminal) return;
-    if (socket.listeners("terminal-output").length == 1) return;
+    if (!socket) return;
+    if (socket.hasListeners("terminal-output")) return;
 
     //to listen terminal output
     socket.on("terminal-output", (data: string) => {
-      terminal.write(data);
+      dispatch(setTerminalOutput(data));
     });
-
-    return () => {
-      socket.off("terminal-output");
-    };
-  }, [socket, terminal, dispatch]);
-
-  //function to emmit terminal input
-  const setTerminalInput = (key: string) => {
-    socket?.emit("terminal-input", { key, roomID });
-  };
+  }, [socket, dispatch]);
 
   //function to run non interactive command
-  const runStream = (cmd: string, send: boolean) => {
-    socket?.emit("stream-run", {
-      cmd,
-      roomID,
-      send,
-    });
-  };
+  const runCode = useCallback(
+    (code: string) => {
+      socket?.emit("run-code", {
+        code,
+        roomID,
+        lang: editorLang,
+      });
+    },
+    [socket, roomID, editorLang]
+  );
 
-  return { setTerminalInput, runStream };
+  return { runCode };
 };
 
 export default useTerminalService;

@@ -14,7 +14,7 @@ const LangOtp = () => {
           className="flex button px-2 py-1 gap-2 items-center bg-accent-500 rounded-md"
           key={lang.name}
           onClick={() => {
-            createRoom(lang.name == "javascript" ? "node" : lang.name);
+            createRoom(lang.name);
             dispatch(setLangOpt(lang.name));
           }}
         >

@@ -12,10 +12,6 @@ export type LangIcon = {
   icon: IconType;
 };
 
-export type FolderStructureType = {
-  [key: string]: "file" | FolderStructureType;
-};
-
 //icons for languages
 export const LangIcons: LangIcon[] = [
   {

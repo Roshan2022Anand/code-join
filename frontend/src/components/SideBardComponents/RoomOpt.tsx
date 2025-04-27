@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { FaCopy } from "react-icons/fa";
-import ChatBox from "./ChatBox";
+import ChatBox from "../helpers/ChatBox";
 import { toast } from "react-toastify";
 
 const RoomOpt = () => {

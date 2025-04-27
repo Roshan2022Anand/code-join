@@ -1,14 +1,14 @@
 import { Editor, OnMount, useMonaco } from "@monaco-editor/react";
 import type * as Monaco from "monaco-editor";
 import { useEffect, useState } from "react";
-import { FaCode, FaPlay } from "react-icons/fa";
+import { FaCode } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { setActiveSection } from "../../redux/slices/EditorSlice";
-import useTerminalService from "../../sockets/TerminalSocket";
 import useEditorService from "../../sockets/EditorSocket";
 import { RiLoaderLine } from "react-icons/ri";
 import RoomJoin from "./RoomJoin";
+import RunBtn from "../helpers/RunBtn";
 
 const CodeEditor = () => {
   //global state from redux
@@ -47,32 +47,6 @@ const CodeEditor = () => {
 
   useEditorService(editor); //hook for editor operations
 
-  const { runStream } = useTerminalService(); //hook for terminal operations
-
-  //to run the program
-  const handleRunPrg = () => {
-    const code = editor?.getValue();
-    if (code) {
-      //escaping special characters
-      const filteredCode = code.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-
-      const cmd = `echo "${filteredCode}" > main`;
-      runStream(cmd, false);
-    }
-  };
-
-  //to save the code on unmount
-  useEffect(() => {
-    return () => {
-      if (activeSection == "code" && editor !== null) {
-        const code = editor.getValue();
-        const filteredCode = code.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-
-        runStream(`echo "${filteredCode}" > main`, false);
-      }
-    };
-  }, [activeSection, runStream, editor]);
-
   return (
     <>
       <article
@@ -87,9 +61,7 @@ const CodeEditor = () => {
         <header className="py-2 px-3 bg-soft flex gap-3 items-center justify-between">
           <FaCode className="icon-md" />
           <h3 className="mr-auto">CODE</h3>
-          <button className="mr-2" onClick={handleRunPrg}>
-            <FaPlay className="icon-md" />
-          </button>
+          <RunBtn editor={editor} />
         </header>
         {editorCode !== null ? (
           <>

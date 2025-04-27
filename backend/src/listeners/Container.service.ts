@@ -1,8 +1,7 @@
 import docker from "../configs/Docker";
-import { languages } from "../helpers/PrgLang";
-import { rooms } from "../configs/Socket";
+import { getIO, rooms } from "../configs/Socket";
 import { Socket } from "socket.io";
-import { langKey } from "../helpers/Types";
+import { langKey, languages } from "../helpers/Types";
 
 //to create a container
 export const createContainer = async (
@@ -29,32 +28,47 @@ export const createContainer = async (
   }
 };
 
-//to run a command in the container
-export const GetFileCode = async (
+//to run the container
+export const runContainer = async (
+  code: string,
   roomID: string,
-  fileLoc: string,
-  socket: Socket
+  socket: Socket,
+  lang: langKey
 ) => {
   try {
-    const containerID = rooms.get(roomID as string)!.containerID;
-    const container = docker.getContainer(containerID);
+    const io = getIO();
+    const containerID = rooms.get(roomID)?.containerID;
+    const container = docker.getContainer(containerID as string);
+
+    const runCmd = languages[lang as langKey].runCmd;
+    const Cmd = [
+      "bash",
+      "-c",
+      `echo '${code}' > main && ${runCmd}`,
+    ];
+
+    //executing the command in the container
     const exec = await container.exec({
-      Cmd: ["cat", fileLoc as string],
       AttachStdout: true,
       AttachStderr: true,
+      Cmd,
+      WorkingDir: "/root",
     });
-    const stream = await exec.start({ hijack: true });
-    let output: string = "";
-    stream
-      .on("data", (data) => {
-        output += data.slice(8).toString();
-      })
-      .on("end", () => {
-        socket.emit("set-editor-value", output);
-      });
+
+    const stream = await exec.start({
+      hijack: true,
+      stdin: true,
+    });
+
+    let output = "";
+    stream.on("data", (data: Buffer) => {
+      output += data.toString();
+    });
+    stream.on("end", () => {
+      io.to(roomID).emit("terminal-output", output);
+    });
   } catch (err) {
-    console.log(err);
-    socket.emit("error", "Error in getting file content, please try again");
+    console.log("Error in running container:", err);
   }
 };
 

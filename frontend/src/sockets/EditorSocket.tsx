@@ -26,21 +26,18 @@ const useEditorService = (
   //to listen for get and set editor value
   useEffect(() => {
     if (!socket) return;
-    if (!socket.hasListeners("set-editor-value")) {
-      socket.on("set-editor-value", ({ code, editorLang }) => {
-        dispatch(setLangOpt(editorLang));
-        dispatch(setEditorCode(code));
-      });
-    }
+    if (socket.hasListeners("get-file-content")) return;
+    socket.on("set-editor-value", ({ code, editorLang }) => {
+      dispatch(setLangOpt(editorLang));
+      dispatch(setEditorCode(code));
+    });
 
-    if (!socket.hasListeners("get-member-content") && editor !== null) {
-      socket.on("get-member-content", (socketID) => {
-        const code = editor.getValue();
+    socket.on("get-member-content", (socketID) => {
+      const code = editor?.getValue();
 
-        if (!code) return;
-        socket.emit("set-member-content", { socketID, code, editorLang });
-      });
-    }
+      if (!code) return;
+      socket.emit("set-member-content", { socketID, code, editorLang });
+    });
   }, [socket, editor, dispatch, editorLang]);
 
   const isRemoteUpdate = useRef(false);
