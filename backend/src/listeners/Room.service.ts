@@ -20,9 +20,9 @@ const RoomOperations = (socket: Socket) => {
 
     if (rooms.has(roomID)) socket.emit("error", "Room already exists");
     else {
-      const { containerID, code } = await createContainer(lang, socket);
+      const { containerID, stream, code } = await createContainer(lang, roomID);
       //if container is not created then emit erFror
-      if (!containerID) {
+      if (!containerID || !stream) {
         socket.emit("error", "Error while creating the environment");
         return;
       }
@@ -30,6 +30,7 @@ const RoomOperations = (socket: Socket) => {
       //add a new room
       rooms.set(roomID, {
         containerID,
+        stream,
         members: new Map(),
       });
 

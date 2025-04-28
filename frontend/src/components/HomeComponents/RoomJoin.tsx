@@ -1,6 +1,6 @@
 import { FaLaptopCode } from "react-icons/fa";
 import { GrConnect } from "react-icons/gr";
-import useRoomServices from "../../sockets/RoomSocket";
+import useRoomServices from "../../sockets/Room";
 import { useRef } from "react";
 
 const RoomJoin = () => {

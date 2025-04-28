@@ -3,12 +3,9 @@ import { FaRegFileCode, FaUserFriends } from "react-icons/fa";
 import { IoOptionsSharp } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import {
-  setActiveSection,
-  setEditorWidth,
-} from "../../redux/slices/EditorSlice";
+import { setActiveSection, setEditorWidth } from "../../redux/slices/Editor";
 import RoomOpt from "../SideBardComponents/RoomOpt";
-import { setSideBarOpt } from "../../redux/slices/FileSlice";
+import { setSideBarOpt } from "../../redux/slices/File";
 import LangOtp from "../SideBardComponents/LangOtp";
 
 const SideBar = () => {

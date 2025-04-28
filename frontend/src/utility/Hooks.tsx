@@ -1,7 +1,7 @@
 import axios, { isAxiosError } from "axios";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { setBasicDetails } from "../redux/slices/RoomSlice";
+import { setBasicDetails } from "../redux/slices/Room";
 import { useEffect } from "react";
 
 export const useAuth = () => {

@@ -1,6 +1,6 @@
 import type * as Monaco from "monaco-editor";
 import { FaPlay } from "react-icons/fa";
-import useTerminalService from "../../sockets/TerminalSocket";
+import useTerminalService from "../../sockets/Terminal";
 import { toast } from "react-toastify";
 
 const RunBtn = ({

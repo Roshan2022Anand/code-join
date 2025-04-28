@@ -5,7 +5,7 @@ import Terminal from "../components/HomeComponents/Terminal";
 import CodeEditor from "../components/HomeComponents/CodeEditor";
 import SideBar from "../components/HomeComponents/SideBar";
 import Header from "../components/HomeComponents/Header";
-import { setEditorHeight, setEditorWidth } from "../redux/slices/EditorSlice";
+import { setEditorHeight, setEditorWidth } from "../redux/slices/Editor";
 
 const HomePg = () => {
   //global state from redux

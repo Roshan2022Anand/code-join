@@ -1,5 +1,5 @@
 import { IoTerminal } from "react-icons/io5";
-import { setActiveSection } from "../../redux/slices/EditorSlice";
+import { setActiveSection } from "../../redux/slices/Editor";
 import { FaPlus } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";

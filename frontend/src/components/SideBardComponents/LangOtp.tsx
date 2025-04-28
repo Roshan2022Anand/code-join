@@ -1,7 +1,7 @@
 import { useDispatch } from "react-redux";
-import useRoomServices from "../../sockets/RoomSocket";
+import useRoomServices from "../../sockets/Room";
 import { LangIcons } from "../../utility/Types";
-import { setLangOpt } from "../../redux/slices/FileSlice";
+import { setLangOpt } from "../../redux/slices/File";
 
 const LangOtp = () => {
   const dispatch = useDispatch();

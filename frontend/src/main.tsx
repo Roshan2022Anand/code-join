@@ -9,7 +9,7 @@ import { store } from "./redux/store.ts";
 import "./index.css";
 import ContextProvider from "./components/ContextProvider.tsx";
 import { Bounce, ToastContainer } from "react-toastify";
-import { ConnectSocket } from "./sockets/ConnectSocket.tsx";
+import { ConnectSocket } from "./sockets/Config.tsx";
 
 const router = createBrowserRouter([
   { path: "/", element: <App /> },

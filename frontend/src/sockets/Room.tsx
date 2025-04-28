@@ -2,9 +2,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import { useEffect } from "react";
 import { useMyContext } from "../utility/MyContext";
-import { setRoomID } from "../redux/slices/RoomSlice";
+import { setRoomID } from "../redux/slices/Room";
 import { toast } from "react-toastify";
-import { setEditorCode, setEditorLoading } from "../redux/slices/FileSlice";
+import { setEditorCode, setEditorLoading } from "../redux/slices/File";
 
 const useRoomServices = () => {
   //gloabl state from redux

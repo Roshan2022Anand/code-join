@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import { useMonaco } from "@monaco-editor/react";
-import { setEditorCode, setLangOpt } from "../redux/slices/FileSlice";
+import { setEditorCode, setLangOpt } from "../redux/slices/File";
 
 const useEditorService = (
   editor: Monaco.editor.IStandaloneCodeEditor | null

@@ -1,3 +1,5 @@
+import internal from "stream";
+
 export type langKey = "javascript" | "python" | "java" | "go" | "c" | "cpp";
 
 export type LangInfoType = {
@@ -11,6 +13,7 @@ export type Room = Map<
   string,
   {
     containerID: string;
+    stream: internal.Duplex;
     members: Map<string, { name: string; profile: string }>;
   }
 >;

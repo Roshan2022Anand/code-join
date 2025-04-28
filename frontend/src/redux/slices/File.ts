@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 interface TerminalStateType {
   editorLang: string | null;
   editorCode: string | null;
-  terminalOutput: string | null;
+  terminalOutput: string;
   sideBarOpt: string | null;
   editorLoading: boolean;
 }
@@ -10,7 +10,7 @@ interface TerminalStateType {
 const initialState: TerminalStateType = {
   editorLang: null,
   editorCode: null,
-  terminalOutput: null,
+  terminalOutput: "",
   sideBarOpt: "langopt",
   editorLoading: false,
 };
