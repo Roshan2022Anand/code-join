@@ -31,6 +31,7 @@ const RoomOperations = (socket: Socket) => {
       rooms.set(roomID, {
         containerID,
         stream,
+        lang,
         members: new Map(),
       });
 

@@ -1,51 +1,51 @@
 import { useCallback, useEffect } from "react";
 import { useMyContext } from "../utility/MyContext";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
-import { setTerminalOutput } from "../redux/slices/File";
 
 const useTerminalService = () => {
   //socket from context
-  const { socket } = useMyContext();
+  const { socket, terminal } = useMyContext();
 
   //global state from redux
-  const dispatch = useDispatch();
   const { roomID } = useSelector((state: RootState) => state.room);
-  const { editorLang, terminalOutput } = useSelector(
-    (state: RootState) => state.file
-  );
+  const { editorLang } = useSelector((state: RootState) => state.file);
 
   //terminal socket events captured
   useEffect(() => {
-    if (!socket) return;
-    // if (socket.hasListeners("terminal-output")) return;
+    if (!socket || !terminal) return;
+    if (socket.hasListeners("terminal-output")) return;
 
     //to listen terminal output
     socket.on("terminal-output", (data: string) => {
-      const output = terminalOutput + data;
-      console.log(terminalOutput, " + ", data);
-      dispatch(setTerminalOutput(output));
+      terminal.write(data);
     });
 
     return () => {
       socket.off("terminal-output");
     };
-  }, [socket, dispatch, terminalOutput]);
+  }, [socket, terminal]);
+
+  //function to emmit terminal input
+  const setTerminalInput = (key: string) => {
+    socket?.emit("terminal-input", { key, roomID });
+  };
 
   //function to run non interactive command
   const runCode = useCallback(
     (code: string) => {
-      dispatch(setTerminalOutput(""));
+      terminal?.clear();
+
       socket?.emit("run-code", {
         code,
         roomID,
         lang: editorLang,
       });
     },
-    [socket, roomID, editorLang, dispatch]
+    [socket, roomID, editorLang, terminal]
   );
 
-  return { runCode };
+  return { setTerminalInput, runCode };
 };
 
 export default useTerminalService;

@@ -61,13 +61,11 @@ export const startStream = async (
   stream.on("data", (data) => {
     const output = data.slice(8).toString();
     console.log("Container Output:", output);
-
-    if (output.includes("root@"))
-      io.to(roomID).emit("terminal-output", "\n---end of the program---");
-    else io.to(roomID).emit("terminal-output", output);
+    const lang = rooms.get(roomID)?.lang;
+    const runCmd = languages[lang as langKey].runCmd;
+    if (output.includes("root@") || output.includes(runCmd)) return;
+    io.to(roomID).emit("terminal-output", output);
   });
-
-  // stream.on
 
   stream.on("end", () => {
     console.log("Container stream ended");

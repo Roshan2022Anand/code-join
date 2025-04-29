@@ -2,7 +2,6 @@ import { createSlice } from "@reduxjs/toolkit";
 interface TerminalStateType {
   editorLang: string | null;
   editorCode: string | null;
-  terminalOutput: string;
   sideBarOpt: string | null;
   editorLoading: boolean;
 }
@@ -10,7 +9,6 @@ interface TerminalStateType {
 const initialState: TerminalStateType = {
   editorLang: null,
   editorCode: null,
-  terminalOutput: "",
   sideBarOpt: "langopt",
   editorLoading: false,
 };
@@ -31,9 +29,6 @@ const FileSlice = createSlice({
     setEditorLoading: (state, action) => {
       state.editorLoading = action.payload;
     },
-    setTerminalOutput: (state, action) => {
-      state.terminalOutput = action.payload;
-    },
   },
 });
 
@@ -42,7 +37,6 @@ export const {
   setEditorCode,
   setSideBarOpt,
   setEditorLoading,
-  setTerminalOutput,
 } = FileSlice.actions;
 
 export default FileSlice.reducer;

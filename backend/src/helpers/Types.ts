@@ -14,6 +14,8 @@ export type Room = Map<
   {
     containerID: string;
     stream: internal.Duplex;
+    // chats:[],
+    lang: langKey;
     members: Map<string, { name: string; profile: string }>;
   }
 >;
