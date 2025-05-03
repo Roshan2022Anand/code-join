@@ -68,7 +68,6 @@ const Terminal = () => {
     };
   }, [setTerminalInput, terminal]);
 
-  console.log(editorCode !== null);
   return (
     <article
       className={`flex-1 flex flex-col overflow-hidden rounded-md bg-secondary border-4 border-soft ${

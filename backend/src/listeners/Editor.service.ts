@@ -1,8 +1,6 @@
 import { Socket } from "socket.io";
 import { getIO, rooms } from "../configs/Socket";
-import {
-  runNonInteractiveCommand,
-} from "./Container.service";
+import { runNonInteractiveCommand } from "./Container.service";
 import { langKey, languages } from "../helpers/Types";
 
 //all the events related to editor operations
@@ -22,21 +20,29 @@ const EditorOperations = (socket: Socket) => {
   });
 
   //event to run the code
-  socket.on("run-code", ({ code, roomID, lang }) => {
+  socket.on("run-code", async ({ code, roomID, lang }) => {
     const stream = rooms.get(roomID)?.stream;
     if (!stream) {
       socket.emit("error", "Internal error");
       return;
     }
 
-    runNonInteractiveCommand(code, roomID); //to save the code in the container
+    await runNonInteractiveCommand(code, roomID); //to save the code in the container
 
     const runCmd = languages[lang as langKey].runCmd;
-    stream.write(`${runCmd}\n`); 
+    stream.write(runCmd);
   });
 
   //evnt to enter the terminal input
-  socket.on("terminal-input", ({ roomID, input }) => {});
+  socket.on("terminal-input", ({ roomID, input }) => {
+    const stream = rooms.get(roomID)?.stream;
+    if (!stream) {
+      socket.emit("error", "Internal error");
+      return;
+    }
+
+    stream.write(input);
+  });
 };
 
 export default EditorOperations;
