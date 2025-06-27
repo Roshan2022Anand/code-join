@@ -1,19 +1,12 @@
 import docker from "../configs/Docker";
+import { languages } from "../helpers/PrgLang";
 import { getIO, rooms } from "../configs/Socket";
 import { Socket } from "socket.io";
-import { langKey, languages } from "../helpers/Types";
-import Dockerode from "dockerode";
-import internal from "stream";
+import { langKey } from "../helpers/Types";
 
-//to create a container
-export const createContainer = async (
-  lang: langKey,
-  roomID: string
-): Promise<{
-  containerID?: string;
-  stream?: internal.Duplex;
-  code?: string;
-}> => {
+//funtion to create a container
+export const createContainer = async (lang: langKey, socket: Socket) => {
+
   try {
     const language = languages[lang as langKey];
 
@@ -27,26 +20,76 @@ export const createContainer = async (
       Cmd: [
         "bash",
         "-c",
-        `echo '${language.code}' > main ${
-          language.env == "node" && "&& npm i prompt-sync"
-        } && exec bash`,
+        `echo '${language.code}' > main.${language.ext} && exec bash`,
       ],
+      Env: ["PORT=9090"],
+      ExposedPorts: {
+        "9090/tcp": {},
+      },
+      HostConfig: {
+        PortBindings: {
+          "9090/tcp": [
+            {
+              HostPort: "9090",
+            },
+          ],
+        },
+      },
     });
 
     await container.start();
-    const stream = await startStream(container, roomID);
-    return { containerID: container.id, stream, code: language.code };
+    return { containerID: container.id };
   } catch (err) {
     return {};
   }
 };
 
-//to start a stream for continuous output
-export const startStream = async (
-  container: Dockerode.Container,
-  roomID: string
-): Promise<internal.Duplex> => {
+//function to run non interactive commands
+export const runNonInteractiveCmd = async (
+  socket: Socket,
+  roomID: string,
+  send: boolean,
+  cmd?: string
+) => {
   const io = getIO();
+  const container = docker.getContainer(rooms.get(roomID)!.containerID);
+
+  //to send folder details
+  if (send) {
+    const exec = await container.exec({
+      Cmd: ["bash", "-c", "ls /root -R"],
+      AttachStdout: true,
+      AttachStderr: true,
+    });
+    const stream = await exec.start({ hijack: true });
+    let output = "";
+    stream.on("data", (data) => {
+      output += data.slice(8).toString();
+    });
+    stream.on("end", () => {
+      io.to(roomID).emit("folder-details", output);
+    });
+  }
+
+  //if cmd is passed then only run the command no need of strea
+  if (cmd) {
+    const exec = await container.exec({
+      Cmd: ["bash", "-c", cmd],
+      AttachStdout: true,
+      AttachStderr: true,
+    });
+    const stream = await exec.start({ hijack: true });
+    stream.end();
+  }
+
+  // test
+  if (rooms.get(roomID)!.streams.length === 0) createNewStream(socket, roomID);
+};
+
+//function to create a new stream for the terminal
+export const createNewStream = async (socket: Socket, roomID: string) => {
+  const io = getIO();
+  const container = docker.getContainer(rooms.get(roomID)?.containerID!);
 
   const exec1 = await container.exec({
     Cmd: ["bash"],
@@ -57,39 +100,38 @@ export const startStream = async (
   });
 
   const stream = await exec1.start({ hijack: true, stdin: true });
-
   stream.on("data", (data) => {
-    const output = data.slice(8).toString();
-    console.log("Container Output:", output);
-    const lang = rooms.get(roomID)?.lang;
-    const runCmd = languages[lang as langKey].runCmd;
-    if (output.includes("root@") || output.includes(runCmd)) return;
-    io.to(roomID).emit("terminal-output", output);
+    io.to(roomID).emit("terminal-output", data.slice(8).toString());
   });
-
-  stream.on("end", () => {
-    console.log("Container stream ended");
-  });
-
-  return stream;
+  rooms.get(roomID)!.streams.push(stream);
 };
 
-//to run non interactive commands
-export const runNonInteractiveCommand = async (
-  code: string,
-  roomID: string
+export const GetFileCode = async (
+  roomID: string,
+  fileLoc: string,
+  socket: Socket
 ) => {
-  const containerID = rooms.get(roomID)?.containerID;
-  const container = docker.getContainer(containerID as string);
-
-  const exec = await container.exec({
-    Cmd: ["bash", "-c", `echo '${code}' > main`],
-    WorkingDir: "/root",
-    AttachStdout: true,
-    AttachStderr: true,
-  });
-  const stream = await exec.start({ hijack: true });
-  stream.end();
+  try {
+    const containerID = rooms.get(roomID as string)!.containerID;
+    const container = docker.getContainer(containerID);
+    const exec = await container.exec({
+      Cmd: ["cat", fileLoc as string],
+      AttachStdout: true,
+      AttachStderr: true,
+    });
+    const stream = await exec.start({ hijack: true });
+    let output: string = "";
+    stream
+      .on("data", (data) => {
+        output += data.slice(8).toString();
+      })
+      .on("end", () => {
+        socket.emit("set-editor-value", output);
+      });
+  } catch (err) {
+    console.log(err);
+    socket.emit("error", "Error in getting file content, please try again");
+  }
 };
 
 //to stop and remove the container

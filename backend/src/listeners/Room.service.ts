@@ -1,28 +1,24 @@
 import { Socket } from "socket.io";
 import { rooms } from "../configs/Socket";
-import { createContainer } from "./Container.service";
+import {
+  createContainer,
+  createNewStream,
+  runNonInteractiveCmd,
+} from "./Container.service";
 import crypto from "crypto";
-
-export const LeaveRoom = (socket: Socket, roomID: string) => {
-  socket.leave(roomID);
-  const room = rooms.get(roomID);
-  if (room) {
-    room.members.delete(socket.id);
-  }
-};
 
 const RoomOperations = (socket: Socket) => {
   //event to create a room
-  socket.on("create-room", async ({ roomID, name, profile, lang }) => {
-    if (roomID != null) LeaveRoom(socket, roomID); //leave the room if already in a room
+  socket.on("create-room", async ({ name, profile, lang }) => {
+    //generate a random room id using crypto
+    const roomID = crypto.randomBytes(8).toString("hex");
 
-    roomID = crypto.randomBytes(8).toString("hex"); //random room id
-
-    if (rooms.has(roomID)) socket.emit("error", "Room already exists");
-    else {
-      const { containerID, stream, code } = await createContainer(lang, roomID);
-      //if container is not created then emit erFror
-      if (!containerID || !stream) {
+    if (rooms.has(roomID)) {
+      socket.emit("error", "Room already exists");
+    } else {
+      const { containerID } = await createContainer(lang, socket);
+      //if container is not created then emit error
+      if (!containerID) {
         socket.emit("error", "Error while creating the environment");
         return;
       }
@@ -30,24 +26,32 @@ const RoomOperations = (socket: Socket) => {
       //add a new room
       rooms.set(roomID, {
         containerID,
-        stream,
-        lang,
+        streams: [],
         members: new Map(),
       });
 
-      rooms.get(roomID)!.members.set(socket.id, { name, profile });
+      runNonInteractiveCmd(socket, roomID, true);
+      createNewStream(socket, roomID);
+
+      rooms
+        .get(roomID)!
+        .members.set(socket.id, { name, profile, currFile: null });
       socket.join(roomID);
-      socket.emit("room-created", { roomID, code });
+      socket.emit("room-created", roomID);
+
     }
   });
 
   //event to join a room
   socket.on("join-room", ({ roomID, name, profile }) => {
     if (rooms.has(roomID)) {
-      rooms.get(roomID)!.members.set(socket.id, { name, profile });
+      rooms
+        .get(roomID)!
+        .members.set(socket.id, { name, profile, currFile: null });
       socket.join(roomID);
       socket.emit("room-joined", roomID);
-      socket.to(roomID).emit("get-member-content", socket.id);
+
+      runNonInteractiveCmd(socket, roomID, true);
     } else {
       socket.emit("error", "Room does not exist");
     }

@@ -1,15 +1,27 @@
-build-frontend:
-	cd frontend && \
-	npm install 
 
-build-backend:
+dev-client:
+	@clear && \
+	cd frontend && \
+	pnpm install && \
+	pnpm dev
+
+dev-server:
+	@clear && \
 	cd backend && \
-	npm install
-
-run-frontend:
-	cd frontend && \
+	npm install && \
 	npm run dev
 
-run-backend:
+prod-client:
+	@clear && \
+	cd frontend && \
+	pnpm install && \
+	pnpm build && \
+	pnpm preview
+
+prod-server:
+	@clear && \
 	cd backend && \
-	npm run dev
+	npm install && \
+	npm run build && \
+	npm run start
+

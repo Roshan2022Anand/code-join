@@ -1,47 +1,37 @@
 import { Socket } from "socket.io";
 import { getIO, rooms } from "../configs/Socket";
-import { runNonInteractiveCommand } from "./Container.service";
-import { langKey, languages } from "../helpers/Types";
+import { GetFileCode } from "./Container.service";
 
-//all the events related to editor operations
 const EditorOperations = (socket: Socket) => {
   const io = getIO();
 
-  //event on editor content change
   socket.on("editor-keypress", ({ range, text, roomID, openedFile }) => {
     socket
       .to(roomID)
       .emit("editor-content-update", { range, text, openedFile });
   });
 
-  //event to cache the editor content
-  socket.on("set-member-content", ({ socketID, code, editorLang }) => {
-    io.to(socketID).emit("set-editor-value", { code, editorLang });
-  });
+  socket.on("get-file-content", ({ roomID, openedFile }) => {
+    let cache = false;
+    const members = rooms.get(roomID)!.members;
 
-  //event to run the code
-  socket.on("run-code", async ({ code, roomID, lang }) => {
-    const stream = rooms.get(roomID)?.stream;
-    if (!stream) {
-      socket.emit("error", "Internal error");
-      return;
+    //to check if other members are using the same file
+    for (let [key, value] of members) {
+      if (value.currFile == openedFile) {
+        io.to(key).emit("get-member-content", socket.id);
+        cache = true;
+        break;
+      }
     }
 
-    await runNonInteractiveCommand(code, roomID); //to save the code in the container
-
-    const runCmd = languages[lang as langKey].runCmd;
-    stream.write(runCmd);
+    if (!cache) {
+      GetFileCode(roomID, openedFile, socket);
+    }
+    members.get(socket.id)!.currFile = openedFile;
   });
 
-  //evnt to enter the terminal input
-  socket.on("terminal-input", ({ roomID, input }) => {
-    const stream = rooms.get(roomID)?.stream;
-    if (!stream) {
-      socket.emit("error", "Internal error");
-      return;
-    }
-
-    stream.write(input);
+  socket.on("set-member-content", ({ socketID, code }) => {
+    io.to(socketID).emit("set-editor-value", code);
   });
 };
 

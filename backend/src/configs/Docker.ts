@@ -57,7 +57,7 @@ import Docker from "dockerode";
 
 // const docker = new Docker({ socketPath: "/var/run/docker.sock" });
 const docker = new Docker({
-  socketPath:"/home/roshan-anand/.docker/desktop/docker.sock"
+  socketPath: "/home/roshan-anand/.docker/desktop/docker.sock",
 });
 
 docker.ping((err: Error) => {
