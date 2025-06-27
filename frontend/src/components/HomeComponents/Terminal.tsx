@@ -1,15 +1,15 @@
 import { IoTerminal } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { setActiveSection } from "../../redux/slices/EditorSlice";
 import { Terminal as XTerminal } from "@xterm/xterm";
 import { useEffect, useRef } from "react";
 import { FitAddon } from "@xterm/addon-fit";
 //@ts-ignore
 import "@xterm/xterm/css/xterm.css";
-import useTerminalService from "../../sockets/TerminalSocket";
 import { useMyContext } from "../../utility/MyContext";
 import { FaPlus } from "react-icons/fa";
+import { setActiveSection } from "../../redux/slices/Editor";
+import useTerminalService from "../../sockets/Terminal";
 
 const Terminal = () => {
   //Xterminal from context
@@ -20,6 +20,7 @@ const Terminal = () => {
   const { activeSection, editorHeight, editorWidth } = useSelector(
     (state: RootState) => state.editor
   );
+  const { editorCode } = useSelector((state: RootState) => state.file);
 
   // Initialize terminal
   const terminalRef = useRef<HTMLDivElement>(null);
@@ -81,10 +82,13 @@ const Terminal = () => {
           <FaPlus className="icon-md" />
         </button>
       </header>
-      <section className="flex-1 flex">
-        <div ref={terminalRef} className="flex-1 size-full"></div>
-        {/* <div className="w-[100px] border-2 bg-black"></div> */}
-      </section>
+        <section className="flex-1 flex">
+          <div ref={terminalRef} className="flex-1 size-full"
+          style={{
+            visibility: editorCode !== null ? "visible" : "hidden",
+          }}
+          ></div>
+        </section>
     </article>
   );
 };

@@ -1,3 +1,4 @@
+
 dev-client:
 	@clear && \
 	cd frontend && \
@@ -23,3 +24,4 @@ prod-server:
 	npm install && \
 	npm run build && \
 	npm run start
+

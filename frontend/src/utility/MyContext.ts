@@ -6,7 +6,7 @@ import { Terminal as XTerminal } from "@xterm/xterm";
 interface MyContextType {
   socket: Socket | null;
   setsocket: React.Dispatch<React.SetStateAction<Socket | null>>;
-  terminal: XTerminal | null;
+  terminal:XTerminal | null;
   setTerminal: React.Dispatch<React.SetStateAction<XTerminal | null>>;
 }
 

@@ -1,5 +1,4 @@
 import internal from "stream";
-
 export type langKey = "NodeJS" | "python" | "java" | "go" | "c" | "cpp";
 
 export type LangInfoType = {

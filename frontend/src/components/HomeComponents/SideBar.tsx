@@ -1,15 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { FaFile, FaUserFriends } from "react-icons/fa";
+import { FaRegFileCode, FaUserFriends } from "react-icons/fa";
 import { IoOptionsSharp } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import {
-  setActiveSection,
-  setEditorWidth,
-} from "../../redux/slices/EditorSlice";
+import { setActiveSection, setEditorWidth } from "../../redux/slices/Editor";
 import RoomOpt from "../SideBardComponents/RoomOpt";
-import FilesOpt from "../SideBardComponents/FilesOpt";
-import { setSideBarOpt } from "../../redux/slices/FileSlice";
+import { setSideBarOpt } from "../../redux/slices/File";
+import LangOtp from "../SideBardComponents/LangOtp";
 
 const SideBar = () => {
   const dispatch = useDispatch();
@@ -49,8 +46,8 @@ const SideBar = () => {
       </header>
       <section className="flex-1 flex">
         <aside className="w-[95px] flex flex-col p-3 gap-3 bg-soft">
-          <button onClick={() => handleOption("fileopt")}>
-            <FaFile className="icon-md-soft" />
+          <button onClick={() => handleOption("langopt")}>
+            <FaRegFileCode className="icon-md-soft" />
           </button>
           <button onClick={() => handleOption("roomopt")}>
             <FaUserFriends className="icon-md-soft" />
@@ -59,7 +56,7 @@ const SideBar = () => {
         {sideBarOpt && (
           <article className="flex-1 flex flex-col overflow-x-hidden">
             {sideBarOpt == "roomopt" && <RoomOpt />}
-            {sideBarOpt == "fileopt" && <FilesOpt />}
+            {sideBarOpt == "langopt" && <LangOtp />}
           </article>
         )}
       </section>

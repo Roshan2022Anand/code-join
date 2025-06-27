@@ -4,6 +4,7 @@ import { GetFileCode } from "./Container.service";
 
 const EditorOperations = (socket: Socket) => {
   const io = getIO();
+
   socket.on("editor-keypress", ({ range, text, roomID, openedFile }) => {
     socket
       .to(roomID)

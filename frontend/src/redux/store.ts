@@ -1,7 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
-import editorReducer from "./slices/EditorSlice";
-import fileReducer from "./slices/FileSlice";
-import roomReducer from "./slices/RoomSlice";
+import editorReducer from "./slices/Editor";
+import fileReducer from "./slices/File";
+import roomReducer from "./slices/Room";
 
 export const store = configureStore({
   reducer: {

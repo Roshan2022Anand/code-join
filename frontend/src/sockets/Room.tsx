@@ -2,19 +2,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import { useEffect } from "react";
 import { useMyContext } from "../utility/MyContext";
-import { setRoomID } from "../redux/slices/RoomSlice";
+import { setRoomID } from "../redux/slices/Room";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
-import { setFolderStructure } from "../redux/slices/FileSlice";
+import { setEditorCode, setEditorLoading } from "../redux/slices/File";
 
-const useRoomServices = (
-  setisLoading: React.Dispatch<React.SetStateAction<boolean>>
-) => {
-  const navigate = useNavigate();
-
+const useRoomServices = () => {
   //gloabl state from redux
   const dispatch = useDispatch();
-  const { userName, profile } = useSelector((state: RootState) => state.room);
+  const { userName, profile, roomID } = useSelector(
+    (state: RootState) => state.room
+  );
 
   //socket from context
   const { socket } = useMyContext();
@@ -22,46 +19,46 @@ const useRoomServices = (
   //listen room events
   useEffect(() => {
     if (!socket) return;
+    if (socket.hasListeners("room-created")) return;
+
     //listen room-created event
-    socket.on("room-created", (roomID) => {
+    socket.on("room-created", ({ roomID, code }) => {
+      dispatch(setEditorCode(code));
+      dispatch(setEditorLoading(false));
       dispatch(setRoomID(roomID));
-      navigate("/home");
     });
 
     //listen room-joined event
     socket.on("room-joined", (roomID) => {
+      dispatch(setEditorLoading(false));
       dispatch(setRoomID(roomID));
-      navigate("/home");
-    });
-
-    //listen container-details event
-    socket.on("folder-details", (data: string) => {
-      dispatch(setFolderStructure(data));
     });
 
     //listen error event
     socket.on("error", (msg) => {
-      setisLoading(false);
+      dispatch(setEditorLoading(false));
       toast.error(msg);
     });
 
-    //clean up
     return () => {
       socket.off("room-created");
       socket.off("room-joined");
       socket.off("container-details");
       socket.off("error");
     };
-  }, [socket, dispatch, navigate, setisLoading]);
+  }, [socket, dispatch]);
 
   //to join a room
   const joinRoom = (roomID: string) => {
+    dispatch(setEditorLoading(true));
     socket?.emit("join-room", { roomID, name: userName, profile });
   };
 
   //to create a room
   const createRoom = (lang: string) => {
+    dispatch(setEditorLoading(true));
     socket?.emit("create-room", {
+      roomID,
       name: userName,
       profile,
       lang,
