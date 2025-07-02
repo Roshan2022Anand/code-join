@@ -3,12 +3,12 @@ import type * as Monaco from "monaco-editor";
 import { useEffect, useState } from "react";
 import { FaCode, FaLaptopCode, FaPlay } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
-import { setActiveSection } from "../../redux/slices/EditorSlice";
+import { setActiveSection } from "../../providers/redux/slices/editor";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import useTerminalService from "../../sockets/TerminalSocket";
-import useEditorService from "../../sockets/EditorSocket";
+import useTerminalService from "../../hooks/TerminalSocket";
+import useEditorService from "../../hooks/EditorSocket";
+import { RootState } from "../../providers/redux/store";
 
 const CodeEditor = () => {
   const navigate = useNavigate();

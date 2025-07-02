@@ -3,14 +3,14 @@ import type * as Monaco from "monaco-editor";
 import { useEffect, useState } from "react";
 import { FaCode, FaLaptopCode, FaPlay } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
-import { setActiveSection } from "../../redux/slices/EditorSlice";
+import { RootState } from "../../providers/redux/store";
+import { setActiveSection } from "../../providers/redux/slices/editor";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import useTerminalService from "../../sockets/TerminalSocket";
-import useEditorService from "../../sockets/EditorSocket";
-import { useMyContext } from "../../utility/MyContext";
-import { setFolderStructure } from "../../redux/slices/FileSlice";
+import useTerminalService from "../../hooks/TerminalSocket";
+import useEditorService from "../../hooks/EditorSocket";
+// import { setFolderStructure } from "../../providers/redux/slices/file";
+// import { useWsContext } from "../../providers/context/config";
 
 const CodeEditorTest = () => {
   const navigate = useNavigate();
@@ -86,18 +86,18 @@ const CodeEditorTest = () => {
     };
   }, [activeSection, openedFile, runStream, editor]);
 
-  const { socket } = useMyContext();
-  useEffect(() => {
-    // joinRoom("123");
-    socket?.on("folder-details", (data: string) => {
-      dispatch(setFolderStructure(data));
-    });
-    socket?.emit("join-test-room", {
-      roomID,
-      name: `name${Math.floor(Math.random() * 10)}`,
-      profile: "jjsj",
-    });
-  }, [socket]);
+  // const { socket } = useWsContext();
+  // useEffect(() => {
+  //   // joinRoom("123");
+  //   socket?.on("folder-details", (data: string) => {
+  //     dispatch(setFolderStructure(data));
+  //   });
+  //   socket?.emit("join-test-room", {
+  //     roomID,
+  //     name: `name${Math.floor(Math.random() * 10)}`,
+  //     profile: "jjsj",
+  //   });
+  // }, [socket]);
 
   return (
     <>

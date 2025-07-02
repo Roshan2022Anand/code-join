@@ -1,6 +1,6 @@
 // import { useEffect } from "react";
 import { FaGithub } from "react-icons/fa";
-import { useAuth } from "./utility/Hooks";
+import { useAuth } from "./hooks/auth";
 function App() {
   useAuth();
   return (

@@ -1,18 +1,18 @@
 import type * as Monaco from "monaco-editor";
-import { useMyContext } from "../utility/MyContext";
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../redux/store";
 import { useMonaco } from "@monaco-editor/react";
 import { convertToFolder } from "../utility/FolderConvertor";
-import { FolderStructureType } from "../utility/Types";
-import { setEditorCode, setOpenedFile } from "../redux/slices/FileSlice";
+import { FolderStructureType, WsData, wsEvent } from "../utility/Types";
+import { setEditorCode, setOpenedFile } from "../providers/redux/slices/file";
+import { useWsContext } from "../providers/context/config";
+import { RootState } from "../providers/redux/store";
 
 const useEditorService = (
   editor: Monaco.editor.IStandaloneCodeEditor | null
 ) => {
   const dispatch = useDispatch();
-  const { socket } = useMyContext();
+  const { socket, listeners, WsOn, WsOff, WsEmit } = useWsContext();
   const { roomID } = useSelector((state: RootState) => state.room);
   const { openedFile, folderStructure } = useSelector(
     (state: RootState) => state.file
@@ -22,25 +22,32 @@ const useEditorService = (
   //get the code for the selected file
   useEffect(() => {
     if (!openedFile) return;
-    socket?.emit("get-file-content", { roomID, openedFile });
-  }, [openedFile, socket, roomID]);
+    const payload: wsEvent = {
+      event: "get-file-content",
+      data: { roomID, openedFile },
+    };
+    WsEmit(payload);
+  }, [openedFile, socket, roomID, WsEmit]);
 
   //to listen for get and set editor value
   useEffect(() => {
-    if (!socket) return;
-    if (!socket.hasListeners("set-editor-value")) {
-      socket.on("set-editor-value", (output) => {
+    if (!socket || !editor) return;
+    if (listeners.has("set-editor-value"))
+      WsOn("set-editor-value", ({ output }: WsData) => {
         dispatch(setEditorCode(output));
       });
-    }
 
-    if (!socket.hasListeners("get-member-content") && editor !== null) {
-      socket.on("get-member-content", (socketID) => {
-        const code = editor.getValue();
-        socket.emit("set-member-content", { socketID, code });
-      });
-    }
-  }, [socket, editor, dispatch]);
+    WsOn("get-member-content", ({ socketID }: WsData) => {
+      const code = editor.getValue();
+      const payload: wsEvent = {
+        event: "set-member-content",
+        data: { socketID, code },
+      };
+      WsEmit(payload);
+    });
+
+    return () => {};
+  }, [socket, editor, dispatch, WsOff, WsOn, listeners, WsEmit]);
 
   //check if  openedFile exists in the folderStructure
   useEffect(() => {
@@ -71,25 +78,17 @@ const useEditorService = (
   const isRemoteUpdate = useRef(false);
   useEffect(() => {
     if (!socket || !editor || !monaco) return;
-    if (socket.hasListeners("editor-content-update")) return;
+    if (listeners.has("editor-content-update")) return;
 
     //listen for editor-content-update event from server
-    socket.on(
+    WsOn(
       "editor-content-update",
-      ({
-        range,
-        text,
-        openedFile: filename,
-      }: {
-        range: Monaco.IRange;
-        text: string;
-        openedFile: string;
-      }) => {
+      ({ range, text, openedFile: filename }: WsData) => {
         if (openedFile !== filename) return;
 
         isRemoteUpdate.current = true;
         const { startColumn, startLineNumber, endColumn, endLineNumber } =
-          range;
+          range as Monaco.IRange;
         const model = editor.getModel();
 
         model?.applyEdits([
@@ -100,7 +99,7 @@ const useEditorService = (
               endLineNumber,
               endColumn
             ),
-            text,
+            text: text as string,
             forceMoveMarkers: true,
           },
         ]);
@@ -116,14 +115,28 @@ const useEditorService = (
     const disposable = editor.onDidChangeModelContent((e) => {
       if (isRemoteUpdate.current) return;
       const { range, text } = e.changes[0];
-      socket?.emit("editor-keypress", { range, text, roomID, openedFile });
+      const payload: wsEvent = {
+        event: "editor-keypress",
+        data: { range, text, roomID, openedFile },
+      };
+      WsEmit(payload);
     });
 
     return () => {
-      socket.off("editor-content-update");
+      WsOff("editor-content-update");
       disposable?.dispose();
     };
-  }, [socket, editor, monaco, roomID, openedFile]);
+  }, [
+    socket,
+    editor,
+    monaco,
+    roomID,
+    openedFile,
+    WsOn,
+    WsOff,
+    WsEmit,
+    listeners,
+  ]);
 };
 
 export default useEditorService;

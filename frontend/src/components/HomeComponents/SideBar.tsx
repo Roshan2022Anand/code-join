@@ -2,14 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { FaFile, FaUserFriends } from "react-icons/fa";
 import { IoOptionsSharp } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
 import {
   setActiveSection,
   setEditorWidth,
-} from "../../redux/slices/EditorSlice";
+} from "../../providers/redux/slices/editor";
 import RoomOpt from "../SideBardComponents/RoomOpt";
 import FilesOpt from "../SideBardComponents/FilesOpt";
-import { setSideBarOpt } from "../../redux/slices/FileSlice";
+import { setSideBarOpt } from "../../providers/redux/slices/file";
+import { RootState } from "../../providers/redux/store";
 
 const SideBar = () => {
   const dispatch = useDispatch();

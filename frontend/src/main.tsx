@@ -4,13 +4,11 @@ import App from "./App.tsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import HomePg from "./pages/HomePg.tsx";
 import { Provider } from "react-redux";
-import { store } from "./redux/store.ts";
-//@ts-ignore
 import "./index.css";
 import Dashboard from "./pages/Dashboard.tsx";
 import ContextProvider from "./components/ContextProvider.tsx";
 import { Bounce, ToastContainer } from "react-toastify";
-import { ConnectSocket } from "./sockets/ConnectSocket.tsx";
+import { store } from "./providers/redux/store.ts";
 
 const router = createBrowserRouter([
   { path: "/", element: <App /> },
@@ -30,12 +28,11 @@ createRoot(document.getElementById("root")!).render(
       pauseOnHover
       theme="dark"
       transition={Bounce}
-      />
+    />
     <ContextProvider>
-    <ConnectSocket />
       <Provider store={store}>
         <RouterProvider router={router} />
       </Provider>
     </ContextProvider>
-    </StrictMode> 
+  </StrictMode>
 );

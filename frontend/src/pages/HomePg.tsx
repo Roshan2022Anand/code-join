@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../redux/store";
 import Terminal from "../components/HomeComponents/Terminal";
-import CodeEditor from "../components/HomeComponents/CodeEditor";
 import SideBar from "../components/HomeComponents/SideBar";
 import Header from "../components/HomeComponents/Header";
-import { setEditorHeight, setEditorWidth } from "../redux/slices/EditorSlice";
+import {
+  setEditorHeight,
+  setEditorWidth,
+} from "../providers/redux/slices/editor";
 import CodeEditorTest from "../components/HomeComponents/CodeEditor_test";
+import { RootState } from "../providers/redux/store";
 
 const HomePg = () => {
   //global state from redux
@@ -101,7 +103,7 @@ const HomePg = () => {
           }}
         >
           {/* <CodeEditor /> */}
-          <CodeEditorTest/>
+          <CodeEditorTest />
           <button
             className="mx-2 resize-btn cursor-ns-resize h-[5px] after:w-[50px] after:h-full"
             onMouseDown={startEditorResize}

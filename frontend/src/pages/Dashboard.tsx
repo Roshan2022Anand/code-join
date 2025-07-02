@@ -1,22 +1,22 @@
 import { FaToolbox } from "react-icons/fa";
-import { langIcons } from "../utility/languages";
 import { createElement, useEffect, useRef, useState } from "react";
 import { RiLoaderFill } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { RootState } from "../redux/store";
 import { toast } from "react-toastify";
-import useRoomServices from "../sockets/RoomSocket";
+import useRoomServices from "../hooks/RoomSocket";
+import { RootState } from "../providers/redux/store";
+import { langIcons } from "../utility/Types";
+import useSocket from "../hooks/socket";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-
-  //global state from redux
   const { email, profile, userName } = useSelector(
     (state: RootState) => state.room
   );
 
   const [isLoading, setisLoading] = useState(false);
+  useSocket(setisLoading);
 
   //to check if user is authenticated
   useEffect(() => {

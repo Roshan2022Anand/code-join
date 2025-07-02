@@ -1,13 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
-import editorReducer from "./slices/EditorSlice";
-import fileReducer from "./slices/FileSlice";
-import roomReducer from "./slices/RoomSlice";
+import editor from "./slices/editor";
+import room from "./slices/room";
+import file from "./slices/file";
 
 export const store = configureStore({
   reducer: {
-    editor: editorReducer,
-    room: roomReducer,
-    file: fileReducer,
+    editor,
+    room,
+    file,
   },
 });
 

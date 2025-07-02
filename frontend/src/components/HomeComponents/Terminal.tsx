@@ -1,19 +1,19 @@
 import { IoTerminal } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
-import { setActiveSection } from "../../redux/slices/EditorSlice";
+import { setActiveSection } from "../../providers/redux/slices/editor";
 import { Terminal as XTerminal } from "@xterm/xterm";
 import { useEffect, useRef } from "react";
 import { FitAddon } from "@xterm/addon-fit";
 //@ts-ignore
 import "@xterm/xterm/css/xterm.css";
-import useTerminalService from "../../sockets/TerminalSocket";
-import { useMyContext } from "../../utility/MyContext";
+import useTerminalService from "../../hooks/TerminalSocket";
 import { FaPlus } from "react-icons/fa";
+import { RootState } from "../../providers/redux/store";
+import { useWsContext } from "../../providers/context/config";
 
 const Terminal = () => {
   //Xterminal from context
-  const { setTerminal, terminal } = useMyContext();
+  const { setTerminal, terminal } = useWsContext();
 
   //global state from redux
   const dispatch = useDispatch();

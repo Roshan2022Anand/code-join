@@ -1,10 +1,12 @@
 import { useDispatch, useSelector } from "react-redux";
 import { convertToFolder } from "../../utility/FolderConvertor";
-import { FolderStructureType } from "../../utility/Types";
-import { RootState } from "../../redux/store";
+import { FolderStructureType, langExt } from "../../utility/Types";
 import { useEffect, useState } from "react";
-import { setCurrentFolder, setOpenedFile } from "../../redux/slices/FileSlice";
-import { langExt } from "../../utility/languages";
+import {
+  setCurrentFolder,
+  setOpenedFile,
+} from "../../providers/redux/slices/file";
+import { RootState } from "../../providers/redux/store";
 
 const FilesOpt = () => {
   //global state from redux
